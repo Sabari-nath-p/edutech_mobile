@@ -1,6 +1,6 @@
 # E-Learning Mobile App with Video Classes, Exams, and PDF Notes
 
-![Project Logo](project_logo.png)
+![Project Logo](https://mathlabcochin.com/images/hh.png)
 
 This repository contains the source code for an innovative e-learning mobile application developed using the Flutter framework. The app provides a comprehensive learning experience with features such as video classes, exams with multiple-choice, multi-select, and numerical questions, as well as PDF note-taking capabilities.
 

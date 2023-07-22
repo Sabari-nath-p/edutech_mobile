@@ -1,13 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:mathlab/Constants/colors.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
+import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/exam/examstart.dart';
 import 'package:mathlab/screen/noteScreen.dart';
 import 'package:pod_player/pod_player.dart';
+
+import '../Constants/colors.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   String chapterID;
@@ -30,9 +35,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   List videoData = [];
   @override
   void initState() {
-    loadVideoList();
-
     super.initState();
+    loadVideoList();
+    loadNoteList();
+    loadExamlist();
   }
 
   loadVideo(String videoID) async {
@@ -48,26 +54,51 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.dispose();
   }
 
-  loadVideoList() {
+  loadVideoList() async {
     print("working");
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    db
-        .collection("course")
-        .doc(widget.courseID)
-        .collection("subjects")
-        .doc(widget.subjectID)
-        .collection("contents")
-        .where("chapter", isEqualTo: widget.chapterID)
-        .get()
-        .then((value) {
-      print(value.docs);
-      for (var data in value.docs) {
-        setState(() {
-          videoData.add(data.data());
-        });
-      }
-    }).onError((error, stackTrace) {
-      print(error);
+    print(
+        "$baseurl/baseurl/applicationview/courses/${widget.courseID}/subjects/${widget.subjectID}/modules/${widget.chapterID}/videos/");
+    final videoResponse = await http.get(Uri.parse(
+        "$baseurl/applicationview/courses/${widget.courseID}/subjects/${widget.subjectID}/modules/${widget.chapterID}/videos/"));
+    print(videoResponse.statusCode);
+    if (videoResponse.statusCode == 200) {
+      var js = json.decode(videoResponse.body);
+      setState(() {
+        videoData.addAll(js);
+        loadSorting();
+      });
+    }
+  }
+
+  loadNoteList() async {
+    final noteResponse = await http.get(Uri.parse(
+        "$baseurl/applicationview/courses/${widget.courseID}/subjects/${widget.subjectID}/modules/${widget.chapterID}/notes"));
+
+    if (noteResponse.statusCode == 200) {
+      var js = json.decode(noteResponse.body);
+      setState(() {
+        videoData.addAll(js);
+        loadSorting();
+      });
+    }
+  }
+
+  loadExamlist() async {
+    final examResponse = await http.get(Uri.parse(
+        "$baseurl/applicationview/courses/${widget.courseID}/subjects/${widget.subjectID}/modules/${widget.chapterID}/exams"));
+
+    if (examResponse.statusCode == 200) {
+      var js = json.decode(examResponse.body);
+      setState(() {
+        videoData.addAll(js);
+        loadSorting();
+      });
+    }
+  }
+
+  loadSorting() {
+    setState(() {
+      videoData.sort((a, b) => a['created_date'].compareTo(b['created_date']));
     });
   }
 
@@ -121,7 +152,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         color: Colors.black, size: 18),
                   ),
                   height(10),
-                  tx400("Leature by : ${videoData[selectedIndex]["lecturer"]}",
+                  tx400("Contents: ${videoData[selectedIndex]["description"]}",
                       color: Colors.black, size: 12),
                 ],
               ),
@@ -130,13 +161,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  for (int i = 0; i < videoData.length; i++)
-                    if (videoData[i]["content_type"] == "video")
-                      videoListCard(i)
-                    else if ((videoData[i]["content_type"] == "note"))
-                      noteListCard(i)
-                    else if ((videoData[i]["content_type"] == "exam"))
-                      ExamListCard(i),
+                  if (videoData.isEmpty)
+                    Center(
+                      child: SizedBox(
+                          height: 200,
+                          width: 200,
+                          child: LoadingAnimationWidget.beat(
+                              color: primaryColor, size: 40)),
+                    ),
+                  if (videoData.isNotEmpty)
+                    for (int i = 0; i < videoData.length; i++)
+                      if (videoData[i]["video_id"] != null)
+                        videoListCard(i)
+                      else if ((videoData[i]["pdf_link"] != null))
+                        noteListCard(i)
+                      else if ((videoData[i]["exam_name"] != null))
+                        ExamListCard(i),
                   height(20)
                 ],
               ),
@@ -150,7 +190,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   videoListCard(int i) {
     return InkWell(
       onTap: () {
-        if (videoData[i]["access_type"] == "free") {
+        if (videoData[i]["access_type"] == 2) {
           setState(() {
             if (!isvideoLoaded)
               loadVideo(videoData[i]["video_id"]);
@@ -192,7 +232,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                         "assets/icons/video.svg",
                         color: Colors.black.withOpacity(.8),
                       )),
-            if (videoData[i]["access_type"] == "paid")
+            if (videoData[i]["access_type"] == 1)
               Positioned(
                   right: 20,
                   bottom: 10,
@@ -215,7 +255,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       child: tx600(videoData[i]["title"],
                           color: Colors.black, size: 14),
                     ),
-                    tx400("Lecture by :  ${videoData[i]["lecturer"]}",
+                    tx400("${videoData[i]["description"]}",
                         color: Colors.black, size: 12),
                   ],
                 )),
@@ -228,7 +268,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   noteListCard(int i) {
     return InkWell(
       onTap: () {
-        if (videoData[i]["access_type"] == "free") {
+        if (videoData[i]["access_type"] == 2) {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) =>
                   noteScreen(notelink: videoData[i]["pdf_link"])));
@@ -261,7 +301,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   "assets/icons/class.svg",
                   color: Colors.black.withOpacity(.7),
                 )),
-            if (videoData[i]["access_type"] == "paid")
+            if (videoData[i]["access_type"] == 1)
               Positioned(
                   right: 20,
                   bottom: 10,
@@ -284,7 +324,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       child: tx600(videoData[i]["title"],
                           color: Colors.black, size: 14),
                     ),
-                    tx400("Contents :  ${videoData[i]["contents"]}",
+                    tx400("Contents :  ${videoData[i]["description"]}",
                         color: Colors.black, size: 12),
                   ],
                 )),
@@ -297,7 +337,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   ExamListCard(int i) {
     return InkWell(
       onTap: () {
-        if (videoData[i]["access_type"] == "free") {
+        if (videoData[i]["access_type"] == 2) {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => ExamStart()));
         } else {
@@ -349,10 +389,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   children: [
                     Container(
                       constraints: BoxConstraints(maxHeight: 45),
-                      child: tx600(videoData[i]["title"],
+                      child: tx600(videoData[i]["exam_name"],
                           color: Colors.black, size: 14),
                     ),
-                    tx400("${videoData[i]["description"]}",
+                    tx400("${videoData[i]["instruction"]}",
                         color: Colors.black, size: 12),
                   ],
                 )),

@@ -1,35 +1,42 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/gestures.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
+import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/chapterlist.dart';
-
-List subjects = [];
+import 'package:http/http.dart' as http;
 
 class SubjectListView extends StatefulWidget {
-  const SubjectListView({super.key});
+  var courseData;
+  SubjectListView({super.key, required this.courseData});
 
   @override
-  State<SubjectListView> createState() => _SubjectListViewState();
+  State<SubjectListView> createState() =>
+      _SubjectListViewState(courseData: courseData);
 }
 
 class _SubjectListViewState extends State<SubjectListView> {
-  loadSubjects() {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    db
-        .collection("course")
-        .doc("plusone")
-        .collection("subjects")
-        .get()
-        .then((value) {
-      for (var data in value.docs) {
-        print(data.id);
-        setState(() {
+  var courseData;
+  _SubjectListViewState({required this.courseData});
+  List subjects = [];
+  loadSubjects() async {
+    final Response = await http.get(
+        Uri.parse(
+            "$baseurl/applicationview/courses/${courseData["slug_studyfield"]}/subjects/"),
+        headers: ({"Vary": "Accept"}));
+
+    if (Response.statusCode == 200) {
+      var js = json.decode(Response.body);
+      print(js);
+      setState(() {
+        for (var data in js) {
           subjects.add(data);
-        });
-      }
-    });
+        }
+      });
+    }
   }
 
   @override
@@ -43,64 +50,104 @@ class _SubjectListViewState extends State<SubjectListView> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
+            backgroundColor: primaryColor, // Color(0xff26202C),
             body: Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                // border: Border(
-                //   bottom: BorderSide(color: Colors.grey.withOpacity(.7))),
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20))),
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 140,
-                      height: 60,
-                      child: Image.asset("assets/icons/mathlablogo.png"),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+
+                        // border: Border(
+                        //   bottom: BorderSide(color: Colors.grey.withOpacity(.7))),
+                        ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: SizedBox(
+                                  height: 60,
+                                  child: CircleAvatar(
+                                      backgroundColor: Colors.white54,
+                                      child: Icon(
+                                        Icons.arrow_back_ios_rounded,
+                                        color: Colors.black,
+                                      ))
+                                  //Image.asset("assets/icons/mathlablogo.png"),
+                                  ),
+                            ),
+                            Expanded(
+                                child: Container(
+                              alignment: Alignment.center,
+                              child: tx700("Physics",
+                                  color: Colors.white, size: 23),
+                            )),
+                            width(60)
+                          ],
+                        ),
+                        // height(10),
+                        // tx700("", color: Colors.black, size: 25),
+                      ],
                     ),
-                    Expanded(child: Container()),
-                    CircleAvatar(
-                      radius: 25,
-                      child: Image.network(
-                          "https://www.clipartkey.com/mpngs/m/208-2089363_user-profile-image-png.png"),
-                    ),
-                  ],
-                ),
-                height(10),
-                tx700("Select \nSubjects", color: Colors.black, size: 25),
-              ],
-            ),
-          ),
-          Expanded(
-              child: SingleChildScrollView(
-            child: Column(
-              children: [
-                height(20),
-                for (var data in subjects)
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => chapterListScreen(
-                                subjectId: data.id,
-                                data: data.data(),
-                              )));
-                    },
-                    child: subjectCard(data.data()),
-                  )
-              ],
-            ),
-          ))
-        ],
-      ),
-    )));
+                  ),
+                  if (subjects.isEmpty)
+                    Expanded(
+                        child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(.98),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50))),
+                      child: Center(
+                        child: SizedBox(
+                            height: 200,
+                            width: 200,
+                            child: LoadingAnimationWidget.beat(
+                                color: primaryColor, size: 40)),
+                      ),
+                    )),
+                  if (!subjects.isEmpty)
+                    Expanded(
+                        child: Container(
+                      height: double.maxFinite,
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(.98),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(50),
+                              topRight: Radius.circular(50))),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            height(20),
+                            for (var data in subjects)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => chapterListScreen(
+                                            subjectId: data["slug_subjects"],
+                                            SubjectName: data["subjects"],
+                                            courseID:
+                                                courseData["slug_studyfield"],
+                                          )));
+                                },
+                                child: subjectCard(data),
+                              ),
+                            height(20)
+                          ],
+                        ),
+                      ),
+                    ))
+                ],
+              ),
+            )));
   }
 
   subjectCard(var data) {
@@ -125,14 +172,17 @@ class _SubjectListViewState extends State<SubjectListView> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: Image.network(
-                  "${data["thumbnail"]}",
+                  (data["subject_image"] == null)
+                      ? "https://th.bing.com/th/id/OIP.T173YISP_ZxI1btAPB2zbAAAAA?pid=ImgDet&w=421&h=421&rs=1"
+                      : "${data["subject_image"]}",
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             width(6),
             Expanded(
-                child: tx600("${data["name"]}", color: Colors.black, size: 17)),
+                child: tx600("${data["subjects"]}",
+                    color: Colors.black, size: 17)),
             Container(
               width: 65,
               margin: EdgeInsets.all(5),
@@ -143,7 +193,8 @@ class _SubjectListViewState extends State<SubjectListView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  tx700("${data["chapters"]}", size: 17, color: Colors.black),
+                  tx700("${data["modules_count"]}",
+                      size: 17, color: Colors.black),
                   tx700("Chapters", size: 8, color: Colors.black),
                 ],
               ),

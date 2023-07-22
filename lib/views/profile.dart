@@ -34,84 +34,136 @@ class _profileViewState extends State<profileView> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white.withOpacity(.8),
       body: Container(
-        padding: EdgeInsets.all(30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            height(20),
-            InkWell(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.grey.withOpacity(.1),
-                    child: Icon(Icons.arrow_back_ios_new))),
             height(30),
             Container(
-              alignment: Alignment.topCenter,
-              child: Column(
-                children: [
-                  CircleAvatar(
-                      radius: 65,
-                      backgroundColor: Colors.transparent,
-                      child: ClipRRect(
-                        child: Image.network(
-                            "https://www.clipartkey.com/mpngs/m/208-2089363_user-profile-image-png.png"),
-                      )),
-                  tx600("$name", size: 18, color: Colors.black),
-                  Image.asset(
-                    "assets/icons/student_badge.png",
-                    width: 100,
-                    height: 70,
-                  )
-                ],
-              ),
+              alignment: Alignment.center,
+              child: tx600("Settings", size: 20, color: Colors.black),
             ),
-            height(20),
-            Row(
-              children: [
-                tx700("Current Course ", size: 17),
-                Expanded(child: Container()),
-                ButtonContainer(Row(
+            height(30),
+            if (false)
+              Container(
+                margin: EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white),
+                child: Row(
                   children: [
-                    tx600("Plus One", color: Colors.white),
-                    Icon(
-                      Icons.arrow_drop_down,
-                      size: 30,
-                      color: Colors.white,
+                    SizedBox(
+                      width: 90,
+                      height: 90,
+                      child: Image.network(
+                          "https://www.murrayglass.com/wp-content/uploads/2020/10/avatar-2048x2048.jpeg"),
+                    ),
+                    Column(
+                      children: [],
                     )
                   ],
-                ))
-              ],
-            ),
-            height(20),
-            tx700("Account Setting ", size: 17),
-            height(10),
-            tx600("Edit Profile", size: 15, color: Colors.black),
-            height(5),
-            tx600("Rate us", size: 15, color: Colors.black),
-            height(5),
-            tx600("Privacy Policy", size: 15, color: Colors.black),
+                ),
+              ),
+            profilelistCard(
+                "Edit profile",
+                "The basic of your profile and general information",
+                Icons.person_2_outlined,
+                istop: true),
+            profilelistCard(
+                "Purchanse History",
+                "Histroy of course, subject and other ads free purchase",
+                Icons.monetization_on),
+            profilelistCard(
+                "Enrolled Course",
+                "Details of enrolled course, renewal data, and content ",
+                Icons.featured_play_list_outlined),
+            profileListCard2("About Us"),
+            profileListCard2("Terms and Policy"),
+            profileListCard2("Privacy Policy"),
+            profileListCard2("Social Media"),
             Expanded(child: Container()),
-            Container(
-              alignment: Alignment.center,
-              child: InkWell(
-                  onTap: () async {
-                    SharedPreferences pref =
-                        await SharedPreferences.getInstance();
-                    pref.setString("LOGIN", "OUT");
-                    Navigator.of(context).pop();
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => LoginScreen()));
-                  },
-                  child: tx700("Logout", color: primaryColor, size: 17)),
-            )
+            InkWell(
+              onTap: () async {
+                SharedPreferences pref = await SharedPreferences.getInstance();
+                pref.setString("LOGIN", "OUT");
+                Navigator.of(context).pop();
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (ctx) => LoginScreen()));
+              },
+              child: Container(
+                alignment: Alignment.center,
+                child: ButtonContainer(tx700("Logout", color: Colors.white),
+                    width: 140),
+              ),
+            ),
+            height(20)
           ],
         ),
       ),
     ));
+  }
+
+  profileListCard2(String title, {bool istop = false}) {
+    return Container(
+      decoration: BoxDecoration(
+          border: (istop)
+              ? Border(
+                  top: BorderSide(color: Colors.grey.withOpacity(.5)),
+                  bottom: BorderSide(color: Colors.grey.withOpacity(.5)))
+              : Border(bottom: BorderSide(color: Colors.grey.withOpacity(.5)))),
+      child: Row(
+        children: [
+          width(20),
+          Expanded(child: tx600(title, size: 13, color: Colors.black)),
+          Icon(
+            Icons.keyboard_arrow_right_rounded,
+            size: 40,
+          )
+        ],
+      ),
+    );
+  }
+
+  profilelistCard(String title, String body, IconData icon,
+      {bool istop = false}) {
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+          border: (istop)
+              ? Border(
+                  top: BorderSide(color: Colors.grey.withOpacity(.5)),
+                  bottom: BorderSide(color: Colors.grey.withOpacity(.5)))
+              : Border(bottom: BorderSide(color: Colors.grey.withOpacity(.5)))),
+      child: Row(
+        children: [
+          width(10),
+          SizedBox(
+            width: 50,
+            height: 50,
+            child: Icon(
+              icon,
+              size: 40,
+              color: Colors.grey,
+            ),
+          ),
+          width(6),
+          Expanded(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              tx600(title, size: 13, color: Colors.black),
+              tx500(body, size: 12, color: Colors.black.withOpacity(.5))
+            ],
+          )),
+          Icon(
+            Icons.keyboard_arrow_right_rounded,
+            size: 40,
+          )
+        ],
+      ),
+    );
   }
 }

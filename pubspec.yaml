@@ -49,12 +49,11 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   fluttertoast: ^8.2.2
   syncfusion_flutter_pdfviewer: ^21.2.9
-  flutter_tex: ^4.0.3+4
   stop_watch_timer: ^2.0.0
-  provider: ^6.0.5
-  firebase_database: ^10.2.3 
   tex_text: ^0.1.8
- 
+  cached_network_image: ^3.2.3
+  flutter_stripe: ^9.3.0
+  lottie: ^2.5.0
 
 dev_dependencies:
   flutter_test:
@@ -94,6 +93,9 @@ flutter:
     - assets/image/questionbg.png
     - assets/image/base.png
     - assets/temp/temp1.png
+    - assets/image/settings icon.svg
+    - assets/image/messages icon.svg
+    - assets/loading.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

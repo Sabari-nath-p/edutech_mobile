@@ -1,41 +1,52 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
-import 'package:mathlab/screen/homescreen.dart';
+import 'package:http/http.dart' as http;
 import 'package:mathlab/screen/videoplayer.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Constants/urls.dart';
 
 class chapterListScreen extends StatefulWidget {
   String subjectId;
-  var data;
-  chapterListScreen({super.key, required this.subjectId, required this.data});
+  String courseID;
+  String SubjectName;
+  chapterListScreen(
+      {super.key,
+      required this.courseID,
+      required this.SubjectName,
+      required this.subjectId});
 
   @override
-  State<chapterListScreen> createState() => _chapterListScreenState();
+  State<chapterListScreen> createState() => _chapterListScreenState(
+      subjectId: subjectId, courseID: courseID, SubjectName: SubjectName);
 }
 
 class _chapterListScreenState extends State<chapterListScreen> {
+  String subjectId;
+  String courseID;
+  String SubjectName;
+  _chapterListScreenState(
+      {required this.courseID,
+      required this.SubjectName,
+      required this.subjectId});
   List chapters = [];
 
-  loadChapters() {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    db
-        .collection("course")
-        .doc("plusone")
-        .collection("subjects")
-        .doc(widget.subjectId)
-        .collection("chapter")
-        .get()
-        .then((value) {
-      for (var data in value.docs) {
-        setState(() {
-          chapters.add(data);
-        });
-      }
-    });
+  loadChapters() async {
+    final Response = await http.get(Uri.parse(
+        "$baseurl/applicationview/courses/$courseID/subjects/$subjectId/modules/"));
+
+    if (Response.statusCode == 200) {
+      var js = json.decode(Response.body);
+      setState(() {
+        chapters = js;
+      });
+      print(Response.body);
+    }
   }
 
   @override
@@ -44,6 +55,7 @@ class _chapterListScreenState extends State<chapterListScreen> {
 
     super.initState();
     loadChapters();
+    print("working");
   }
 
   @override
@@ -77,7 +89,11 @@ class _chapterListScreenState extends State<chapterListScreen> {
                         )),
                   ),
                   width(8),
-                  tx700("${widget.data["name"]}", size: 25, color: Colors.white)
+                  Container(
+                      width: 200,
+                      child:
+                          tx700("$SubjectName", size: 25, color: Colors.white)),
+                  width(8),
                 ],
               ),
             ),
@@ -88,18 +104,27 @@ class _chapterListScreenState extends State<chapterListScreen> {
                 child: Column(
                   children: [
                     height(20),
-                    for (var data in chapters)
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => VideoPlayerScreen(
-                                chapterID: data.id,
-                                subjectID: widget.subjectId,
-                                courseID: "plusone"),
-                          ));
-                        },
-                        child: chapterCard(data.data()),
-                      )
+                    if (chapters.isEmpty)
+                      Center(
+                        child: SizedBox(
+                            height: 200,
+                            width: 200,
+                            child: LoadingAnimationWidget.beat(
+                                color: primaryColor, size: 40)),
+                      ),
+                    if (chapters.isNotEmpty)
+                      for (var data in chapters)
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => VideoPlayerScreen(
+                                  chapterID: data["slug_modules"],
+                                  subjectID: widget.subjectId,
+                                  courseID: widget.courseID),
+                            ));
+                          },
+                          child: chapterCard(data),
+                        )
                   ],
                 ),
               ),
@@ -110,7 +135,9 @@ class _chapterListScreenState extends State<chapterListScreen> {
     ));
   }
 
-  chapterCard(var data) {
+  chapterCard(
+    var data,
+  ) {
     return Container(
       height: 50,
       margin: EdgeInsets.symmetric(vertical: 3),
@@ -129,10 +156,12 @@ class _chapterListScreenState extends State<chapterListScreen> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withOpacity(.2)),
-            child: tx700(data["chapter_no"], color: Colors.black54, size: 18),
+            child: tx700(data["module_no"].toString(),
+                color: Colors.black54, size: 18),
           ),
           width(10),
-          Expanded(child: tx500(data["name"], size: 15, color: Colors.black)),
+          Expanded(
+              child: tx500(data["module_name"], size: 15, color: Colors.black)),
           Icon(
             Icons.play_arrow,
             color: primaryColor,

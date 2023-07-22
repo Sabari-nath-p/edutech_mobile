@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:mathlab/screen/exam/components.dart/options.dart';
 import 'package:mathlab/screen/exam/components.dart/question.dart';
@@ -9,10 +6,8 @@ import 'package:mathlab/screen/exam/components.dart/timerBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:mathlab/screen/exam/models/ExamData.dart';
 import 'package:mathlab/screen/exam/models/questionMode.dart';
-import 'package:provider/provider.dart';
 import '../../Constants/sizer.dart';
 import '../../Constants/textstyle.dart';
-import '../../development.dart';
 
 class examMain extends StatefulWidget {
   ExamData examData;

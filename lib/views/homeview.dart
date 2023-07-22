@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
+import 'package:mathlab/Constants/urls.dart';
+import 'package:mathlab/screen/course_overview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -25,7 +30,21 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    loaddata();
+    //loaddata();
+    if (popCourse.isEmpty) loadpopularCouse();
+  }
+
+  List popCourse = [];
+
+  loadpopularCouse() async {
+    final Response =
+        await http.get(Uri.parse("$baseurl/applicationview/courses/"));
+    if (Response.statusCode == 200) {
+      setState(() {
+        var js = json.decode(Response.body);
+        popCourse = js;
+      });
+    }
   }
 
   @override
@@ -189,12 +208,20 @@ class _HomeViewState extends State<HomeView> {
             child: Row(
               children: [
                 width(30),
-                for (int i = 0; i < 2; i++)
-                  Container(
-                      width: 155,
-                      height: 167,
-                      margin: EdgeInsets.symmetric(horizontal: 8),
-                      child: Image.asset("assets/temp/temp1.png")),
+                for (var data in popCourse)
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => CourseOverView(
+                                courseData: data,
+                              )));
+                    },
+                    child: Container(
+                        width: 155,
+                        height: 167,
+                        margin: EdgeInsets.symmetric(horizontal: 8),
+                        child: Image.asset("assets/temp/temp1.png")),
+                  ),
               ],
             ),
           )

@@ -201,3 +201,59 @@ String questionData = """
     "access_type": "free"
 }
 """;
+
+String description = r"""
+\documentclass{article}
+
+\title{Class Description: plustwo}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Class Overview}
+The \texttt{plustwo} class is a simple Python class that provides a method to add two to a given number. It serves as a basic example to demonstrate class creation and method implementation in Python.
+
+\section{Class Structure}
+
+\subsection{Attributes}
+The \texttt{plustwo} class does not have any class-level attributes.
+
+\subsection{Methods}
+The \texttt{plustwo} class has the following method:
+
+\subsubsection{\texttt{add\_two}}
+\textbf{Description:} This method takes a single integer argument and returns the result of adding two to the input number.
+
+\textbf{Input:}
+\begin{itemize}
+    \item \texttt{num} (int): The input number to which two will be added.
+\end{itemize}
+
+\textbf{Output:}
+\begin{itemize}
+    \item (int): The result of adding two to the input number.
+\end{itemize}
+
+\section{Usage}
+To use the \texttt{plustwo} class, follow these steps:
+
+\begin{verbatim}
+# Import the plustwo class
+from plustwo import plustwo
+
+# Create an instance of the plustwo class
+obj = plustwo()
+
+# Call the add_two method and pass a number as an argument
+result = obj.add_two(5)
+
+# Print the result
+print(result) # Output: 7
+\end{verbatim}
+
+\end{document}
+
+""";

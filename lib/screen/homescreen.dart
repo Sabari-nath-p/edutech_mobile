@@ -2,6 +2,8 @@ import 'package:bottom_bar/bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mathlab/Constants/colors.dart';
+import 'package:mathlab/screen/resultpage.dart';
+import 'package:mathlab/views/courselist.dart';
 import 'package:mathlab/views/homeview.dart';
 import 'package:mathlab/views/profile.dart';
 import 'package:mathlab/views/subjectlist.dart';
@@ -23,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Scaffold(
       body: PageView(
         controller: _pageController,
-        children: [HomeView(), SubjectListView(), Container(), profileView()],
+        children: [HomeView(), CourseListView(), ResultPage(), profileView()],
         onPageChanged: (index) {
           // Use a better state management solution
           // setState is used for simplicity
@@ -44,17 +46,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           BottomBarItem(
             icon: SvgPicture.asset("assets/icons/class.svg"),
-            title: Text('Classes'),
+            title: Text('Courses'),
             activeColor: primaryColor,
           ),
           BottomBarItem(
-            icon: Icon(Icons.person),
-            title: Text('Account'),
-            activeColor: Colors.greenAccent.shade700,
+            icon: SvgPicture.asset(
+              "assets/image/messages icon.svg",
+              color: primaryColor,
+            ),
+            title: Text('Reports'),
+            activeColor: primaryColor,
           ),
           BottomBarItem(
-            icon: SvgPicture.asset("assets/icons/profile.svg"),
-            title: Text('Profile'),
+            icon: SvgPicture.asset(
+              "assets/image/settings icon.svg",
+              color: primaryColor,
+            ),
+            title: Text('settings'),
             activeColor: primaryColor,
           ),
         ],

@@ -1,10 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
+import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/homescreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
+    //loading = false;
     return SafeArea(
         child: Scaffold(
       body: Stack(
@@ -282,52 +285,70 @@ class _LoginScreenState extends State<LoginScreen> {
     ));
   }
 
-  sendlogin(String email, String password) {
+  sendlogin(String email, String password) async {
     setState(() {
       loading = true;
     });
-    CollectionReference users = FirebaseFirestore.instance.collection('user');
-    users.where("email", isEqualTo: email).get().then((value) async {
-      if (value.docs.isNotEmpty) {
-        if (password == value.docs[0].get("password").toString()) {
-          print(value.docs[0].data());
-          SharedPreferences pref = await SharedPreferences.getInstance();
-          pref.setString("LOGIN", "IN");
-          pref.setString("EMAIL", email);
-          pref.setString("PASSWORD", password);
-          pref.setString("NAME", value.docs[0].get("name").toString());
-          Navigator.of(context).pop();
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-        } else {
-          setState(() {
-            loading = false;
-          });
-          Fluttertoast.showToast(msg: "Login failed , invalid Credential");
-        }
-      } else {
-        Fluttertoast.showToast(msg: "Login failed , invalid Credential");
+
+    final Response = await http.post(Uri.parse("$baseurl/users/login/"), body: {
+      "username": email,
+      "password": password,
+    }, headers: {
+      "Vary": "Accept"
+    });
+
+    print(Response.body);
+    print(Response.statusCode);
+    if (Response.statusCode == 200) {
+      var js = json.decode(Response.body);
+
+      //  print(js["token"]);
+      //  print(js);
+
+      if (js == "The username or password is incorrect") {
+        Fluttertoast.showToast(msg: "Invalid credentials");
         setState(() {
           loading = false;
         });
+      } else {
+        SharedPreferences pref = await SharedPreferences.getInstance();
+        pref.setString("LOGIN", "IN");
+        pref.setString("EMAIL", email);
+        pref.setString("PASSWORD", password);
+        pref.setString("TOKEN", js["token"]);
+        Navigator.of(context).pop();
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => HomeScreen()));
       }
-    });
+      print("working");
+    } else {
+      setState(() {
+        loading = false;
+      });
+      Fluttertoast.showToast(msg: "Invalid Credentials");
+    }
   }
 
   bool loading = false;
-  sendsignup(String email, String password, String name, String phone) {
+  sendsignup(String email, String password, String name, String phone) async {
     setState(() {
       loading = true;
     });
-    CollectionReference users = FirebaseFirestore.instance.collection('user');
-    users.add({
-      "password": password,
+
+    final Response =
+        await http.post(Uri.parse("$baseurl/users/userRegistration/"), body: {
       "name": name,
-      "date_joined": DateTime.now().toString(),
-      "last_login": DateTime.now().toString(),
-      "email": email,
-      "phone_number": phone
-    }).whenComplete(() async {
+      "username": email,
+      "phone_number": phone,
+      "password": password,
+      "confirm_password": password,
+    }, headers: {
+      "Vary": "Accept"
+    });
+
+    if (Response.statusCode == 200 || Response.statusCode == 201) {
+      var result = json.decode(Response.body);
+
       Fluttertoast.showToast(msg: "Welcome to MathLab Research");
       SharedPreferences pref = await SharedPreferences.getInstance();
       pref.setString("LOGIN", "IN");
@@ -335,16 +356,23 @@ class _LoginScreenState extends State<LoginScreen> {
       pref.setString("PASSWORD", password);
       pref.setString("NAME", name);
       pref.setString("PHONE", phone);
-
+      print(result);
       Navigator.of(context).pop();
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => HomeScreen()));
-    }).onError((error, stackTrace) {
+    } else {
+      var result = json.decode(Response.body);
+      if (result["username"] != null)
+        Fluttertoast.showToast(msg: "Invalid Credentials");
+      if (result["password"] != null)
+        Fluttertoast.showToast(
+            msg:
+                "Password must container uppercase , lowercase number and special character");
+      if (result["non_field_error"] != null)
+        Fluttertoast.showToast(msg: "Please fill data");
       setState(() {
         loading = false;
       });
-      Fluttertoast.showToast(msg: "Something went to wrong, please try again");
-      return users.doc();
-    });
+    }
   }
 }

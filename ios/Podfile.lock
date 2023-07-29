@@ -1,0 +1,141 @@
+PODS:
+  - device_info_plus (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - sqflite (0.0.3):
+    - Flutter
+    - FMDB (>= 2.7.5)
+  - Stripe (23.8.0):
+    - StripeApplePay (= 23.8.0)
+    - StripeCore (= 23.8.0)
+    - StripePayments (= 23.8.0)
+    - StripePaymentsUI (= 23.8.0)
+    - StripeUICore (= 23.8.0)
+  - stripe_ios (0.0.1):
+    - Flutter
+    - Stripe (~> 23.8.0)
+    - StripeApplePay (~> 23.8.0)
+    - StripeFinancialConnections (~> 23.8.0)
+    - StripePayments (~> 23.8.0)
+    - StripePaymentSheet (~> 23.8.0)
+    - StripePaymentsUI (~> 23.8.0)
+  - StripeApplePay (23.8.0):
+    - StripeCore (= 23.8.0)
+  - StripeCore (23.8.0)
+  - StripeFinancialConnections (23.8.0):
+    - StripeCore (= 23.8.0)
+    - StripeUICore (= 23.8.0)
+  - StripePayments (23.8.0):
+    - StripeCore (= 23.8.0)
+    - StripePayments/Stripe3DS2 (= 23.8.0)
+  - StripePayments/Stripe3DS2 (23.8.0):
+    - StripeCore (= 23.8.0)
+  - StripePaymentSheet (23.8.0):
+    - StripeApplePay (= 23.8.0)
+    - StripeCore (= 23.8.0)
+    - StripePayments (= 23.8.0)
+    - StripePaymentsUI (= 23.8.0)
+  - StripePaymentsUI (23.8.0):
+    - StripeCore (= 23.8.0)
+    - StripePayments (= 23.8.0)
+    - StripeUICore (= 23.8.0)
+  - StripeUICore (23.8.0):
+    - StripeCore (= 23.8.0)
+  - syncfusion_flutter_pdfviewer (0.0.1):
+    - Flutter
+  - Toast (4.0.0)
+  - url_launcher_ios (0.0.1):
+    - Flutter
+  - video_player_avfoundation (0.0.1):
+    - Flutter
+  - wakelock (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
+  - Flutter (from `Flutter`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - stripe_ios (from `.symlinks/plugins/stripe_ios/ios`)
+  - syncfusion_flutter_pdfviewer (from `.symlinks/plugins/syncfusion_flutter_pdfviewer/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
+  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
+  - wakelock (from `.symlinks/plugins/wakelock/ios`)
+
+SPEC REPOS:
+  trunk:
+    - FMDB
+    - Stripe
+    - StripeApplePay
+    - StripeCore
+    - StripeFinancialConnections
+    - StripePayments
+    - StripePaymentSheet
+    - StripePaymentsUI
+    - StripeUICore
+    - Toast
+
+EXTERNAL SOURCES:
+  device_info_plus:
+    :path: ".symlinks/plugins/device_info_plus/ios"
+  Flutter:
+    :path: Flutter
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
+  stripe_ios:
+    :path: ".symlinks/plugins/stripe_ios/ios"
+  syncfusion_flutter_pdfviewer:
+    :path: ".symlinks/plugins/syncfusion_flutter_pdfviewer/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
+  video_player_avfoundation:
+    :path: ".symlinks/plugins/video_player_avfoundation/ios"
+  wakelock:
+    :path: ".symlinks/plugins/wakelock/ios"
+
+SPEC CHECKSUMS:
+  device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  fluttertoast: fafc4fa4d01a6a9e4f772ecd190ffa525e9e2d9c
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
+  shared_preferences_foundation: e2dae3258e06f44cc55f49d42024fd8dd03c590c
+  sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
+  Stripe: 5432fbab660595a3bee937235dd71a99028ac68c
+  stripe_ios: c731dafb26f3736baebde37ba45db708943d5229
+  StripeApplePay: 5e686f50ee07c439b79b907dffeb144135e601c9
+  StripeCore: 91164d69b8593f44df9ee93e56a00355592068b6
+  StripeFinancialConnections: b30a494579271f33f38d9a934288c2ad617bfc26
+  StripePayments: c19d94c55723894e1f47dadb40a6f1bfa7fac214
+  StripePaymentSheet: 1fef5afa050bfd684e84553cba613041a2b3d7b7
+  StripePaymentsUI: 7d2fc8fe17c3fdc63508bc54df2b7cc3f45c8ef7
+  StripeUICore: 1dc4d2f9afcd908db85190e9091dfe260a1861fe
+  syncfusion_flutter_pdfviewer: bb9998884b864cfedf72628df3503bdf57e397c0
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+  url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
+  video_player_avfoundation: 81e49bb3d9fb63dccf9fa0f6d877dc3ddbeac126
+  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
+
+PODFILE CHECKSUM: a57f30d18f102dd3ce366b1d62a55ecbef2158e5
+
+COCOAPODS: 1.12.1

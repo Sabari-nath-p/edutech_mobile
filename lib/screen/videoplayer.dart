@@ -269,6 +269,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     return InkWell(
       onTap: () {
         if (videoData[i]["access_type"] == 2) {
+          if (isvideoLoaded) controller.pause();
+
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) =>
                   noteScreen(notelink: videoData[i]["pdf_link"])));
@@ -337,9 +339,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   ExamListCard(int i) {
     return InkWell(
       onTap: () {
-        if (videoData[i]["access_type"] == 2) {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => ExamStart()));
+        if (videoData[i]["access_type"] == 1) {
+          if (isvideoLoaded) controller.pause();
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ExamStart(
+                    examid: videoData[i]["exam_unique_id"].toString(),
+                    courseid: widget.courseID,
+                    subjectid: widget.subjectID,
+                    moduleid: widget.chapterID,
+                  )));
         } else {
           Fluttertoast.showToast(
               msg: "Prime leature , only avilable to Enrolled user");
@@ -369,7 +377,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   "assets/icons/exam.svg",
                   color: Colors.black,
                 )),
-            if (videoData[i]["access_type"] == "paid")
+            if (videoData[i]["access_type"] == 1)
               Positioned(
                   right: 20,
                   bottom: 10,

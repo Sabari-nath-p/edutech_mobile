@@ -199,14 +199,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Colors.black,
                                     fontSize: 13),
                                 suffix: InkWell(
-                                    onTapDown: (value) {
+                                    onTap: () {
                                       setState(() {
-                                        passvisible = false; //!passvisible;
-                                      });
-                                    },
-                                    onTapUp: (value) {
-                                      setState(() {
-                                        passvisible = true; //!passvisible;
+                                        passvisible =
+                                            !passvisible; //!passvisible;
                                       });
                                     },
                                     child: tx400(
@@ -356,14 +352,18 @@ class _LoginScreenState extends State<LoginScreen> {
       pref.setString("PASSWORD", password);
       pref.setString("NAME", name);
       pref.setString("PHONE", phone);
+      pref.setString("TOKEN", result["token"]);
       print(result);
+      setState(() {
+        loading = false;
+      });
       Navigator.of(context).pop();
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => HomeScreen()));
     } else {
       var result = json.decode(Response.body);
       if (result["username"] != null)
-        Fluttertoast.showToast(msg: "Invalid Credentials");
+        Fluttertoast.showToast(msg: "email id already existed");
       if (result["password"] != null)
         Fluttertoast.showToast(
             msg:

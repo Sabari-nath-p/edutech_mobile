@@ -21,10 +21,10 @@ class ExamData {
     accessType = json['access_type'];
   }
 
-  fetchQuestion(var questionSet) {
+  fetchQuestion(var questionSet, String model) {
     for (var qns in questionSet) {
       QuestionListModel question = QuestionListModel(
-          questionData: qns, model: qns["model"], answer: "", status: -1);
+          questionData: qns, model: model, answer: "", status: -1);
       questions.add(question);
     }
   }
@@ -36,9 +36,9 @@ class ExamData {
 
   markAnswer(String ans) {
     questions[currentQuesstion].status = 1;
-    if (questions[currentQuesstion].model == "multiple_choice")
+    if (questions[currentQuesstion].model == "multiplechoice")
       questions[currentQuesstion].answer = ans;
-    if (questions[currentQuesstion].model == "multi_select")
+    if (questions[currentQuesstion].model == "multiselect")
       questions[currentQuesstion].answer =
           "${questions[currentQuesstion].answer}$ans";
     if (questions[currentQuesstion].model == "numeric")
@@ -47,9 +47,9 @@ class ExamData {
 
   unMarkAnswer(String ans) {
     questions[currentQuesstion].status = 0;
-    if (questions[currentQuesstion].model == "multiple_choice")
+    if (questions[currentQuesstion].model == "multiplechoice")
       questions[currentQuesstion].answer = "";
-    if (questions[currentQuesstion].model == "multi_select")
+    if (questions[currentQuesstion].model == "multiselect")
       questions[currentQuesstion].answer =
           questions[currentQuesstion].answer!.replaceAll(ans, "");
     if (questions[currentQuesstion].model == "numeric")

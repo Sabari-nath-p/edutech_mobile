@@ -39,7 +39,8 @@ class _chapterListScreenState extends State<chapterListScreen> {
   loadChapters() async {
     final Response = await http.get(Uri.parse(
         "$baseurl/applicationview/courses/$courseID/subjects/$subjectId/modules/"));
-
+    print(Response.statusCode);
+    print(Response.body);
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
       setState(() {
@@ -114,17 +115,22 @@ class _chapterListScreenState extends State<chapterListScreen> {
                       ),
                     if (chapters.isNotEmpty)
                       for (var data in chapters)
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => VideoPlayerScreen(
-                                  chapterID: data["slug_modules"],
-                                  subjectID: widget.subjectId,
-                                  courseID: widget.courseID),
-                            ));
-                          },
-                          child: chapterCard(data),
-                        )
+                        if (data["is_active"] &&
+                            (data["videos"].isNotEmpty ||
+                                data["exams"].isNotEmpty ||
+                                data["notes"].isNotEmpty))
+                          InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => VideoPlayerScreen(
+                                    chapterID: data["modules_id"].toString(),
+                                    subjectID: widget.subjectId,
+                                    courseID: widget.courseID),
+                              ));
+                            },
+                            child:
+                                chapterCard(data, chapters.indexOf(data) + 1),
+                          )
                   ],
                 ),
               ),
@@ -135,9 +141,7 @@ class _chapterListScreenState extends State<chapterListScreen> {
     ));
   }
 
-  chapterCard(
-    var data,
-  ) {
+  chapterCard(var data, int number) {
     return Container(
       height: 50,
       margin: EdgeInsets.symmetric(vertical: 3),
@@ -156,8 +160,7 @@ class _chapterListScreenState extends State<chapterListScreen> {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withOpacity(.2)),
-            child: tx700(data["module_no"].toString(),
-                color: Colors.black54, size: 18),
+            child: tx700(number.toString(), color: Colors.black54, size: 18),
           ),
           width(10),
           Expanded(

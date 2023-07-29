@@ -21,21 +21,21 @@ class _ExamOptionsState extends State<ExamOptions> {
   loadOption() {
     qnmodel = widget.examData.getCurrentQuestion();
     questionType = qnmodel.model!;
-    if (questionType == "multiple_choice") {
+    if (questionType == "multiplechoice") {
       setState(() {
         if (qnmodel.answer.toString() != "")
           selectedOption = int.parse(qnmodel.answer.toString());
         else
           selectedOption = -1;
       });
-    } else if (questionType == "multiple_choice") {
+    } else if (questionType == "multiselect") {
       setState(() {
         if (qnmodel.answer.toString().contains("0")) multipleOption.add(0);
         if (qnmodel.answer.toString().contains("1")) multipleOption.add(1);
         if (qnmodel.answer.toString().contains("2")) multipleOption.add(2);
         if (qnmodel.answer.toString().contains("3")) multipleOption.add(3);
       });
-    } else if (questionType == "numeric") {
+    } else if (questionType == "numericals") {
       setState(() {
         numericController.text = qnmodel.answer.toString();
       });
@@ -81,10 +81,9 @@ class _ExamOptionsState extends State<ExamOptions> {
       margin: EdgeInsets.all(20),
       child: Column(
         children: [
-          if (questionType == "multiple_choice" ||
-              questionType == "multi_select")
+          if (questionType == "multiplechoice" || questionType == "multiselect")
             for (int i = 0; i < 4; i++)
-              if (questionType == "multiple_choice")
+              if (questionType == "multiplechoice")
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
                   child: InkWell(
@@ -130,28 +129,31 @@ class _ExamOptionsState extends State<ExamOptions> {
                         ),
                         width(20),
                         Expanded(
-                          child: Container(
-                            child: (qnmodel.questionData["answers"][i]
-                                        ["type"] ==
-                                    "image")
-                                ? Image.network(qnmodel.questionData["answers"]
-                                    [i]["answer"])
-                                : TexText(
-                                    qnmodel.questionData["answers"][i]
-                                        ["answer"],
+                          child: Column(
+                            children: [
+                              if (qnmodel
+                                      .questionData["option${i + 1}_image"] !=
+                                  null)
+                                Image.network(qnmodel
+                                    .questionData["option${i + 1}_image"]),
+                              if (qnmodel.questionData["option${i + 1}_text"] !=
+                                  null)
+                                TexText(
+                                    qnmodel.questionData["option${i + 1}_text"],
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
                                       fontFamily: "Mullish",
                                       color: Colors.black87,
                                     )),
+                            ],
                           ),
                         )
                       ],
                     ),
                   ),
                 )
-              else if (questionType == "multi_select")
+              else if (questionType == "multiselect")
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
                   child: Row(
@@ -195,21 +197,29 @@ class _ExamOptionsState extends State<ExamOptions> {
                       ),
                       width(20),
                       Expanded(
-                        child: (qnmodel.questionData["answers"][i]["type"] ==
-                                "image")
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(qnmodel
-                                    .questionData["answers"][i]["answer"]),
-                              )
-                            : Container(
-                                child: TexText(qnmodel.questionData["answers"]
-                                    [i]["answer"])),
-                      )
+                          child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (qnmodel.questionData["options"][i]
+                                  ["options_image"] !=
+                              null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(qnmodel
+                                  .questionData["options"][i]["options_image"]),
+                            ),
+                          if (qnmodel.questionData["options"][i]
+                                  ["options_text"] !=
+                              null)
+                            Container(
+                                child: TexText(qnmodel.questionData["options"]
+                                    [i]["options_text"])),
+                        ],
+                      ))
                     ],
                   ),
                 ),
-          if (questionType == "numeric")
+          if (questionType == "numericals")
             Container(
               width: double.infinity,
               height: 150,

@@ -2,12 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
+import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/Constants/urls.dart';
+import 'package:mathlab/notification.dart';
 import 'package:mathlab/screen/course_overview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+import '../components/popularCourse.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -30,19 +34,35 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    //loaddata();
+    loaddata();
     if (popCourse.isEmpty) loadpopularCouse();
+    if (slidershowimages.isEmpty) loadSlideShow();
   }
 
   List popCourse = [];
+  List slidershowimages = [];
 
   loadpopularCouse() async {
-    final Response =
-        await http.get(Uri.parse("$baseurl/applicationview/courses/"));
+    final Response = await http
+        .get(Uri.parse("$baseurl/applicationview/popularcourseview/"));
     if (Response.statusCode == 200) {
       setState(() {
         var js = json.decode(Response.body);
         popCourse = js;
+        print(js);
+      });
+    }
+  }
+
+  loadSlideShow() async {
+    final response =
+        await http.get(Uri.parse("$baseurl/applicationview/sliderimageview/"));
+
+    if (response.statusCode == 200) {
+      setState(() {
+        var js = json.decode(response.body);
+        slidershowimages = js;
+        print(js);
       });
     }
   }
@@ -61,13 +81,23 @@ class _HomeViewState extends State<HomeView> {
               SizedBox(
                 width: 140,
                 height: 60,
-                child: Image.asset("assets/icons/mathlablogo.png"),
+                child: Image.asset(
+                  "assets/icons/mathlablogo.png",
+                ),
               ),
               Expanded(child: Container()),
-              CircleAvatar(
-                radius: 25,
-                child: Image.network(
-                    "https://www.clipartkey.com/mpngs/m/208-2089363_user-profile-image-png.png"),
+              InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => NotificationScreen()));
+                },
+                child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.transparent,
+                    child: Image.network(
+                      "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-coloricon-1/21/61_1-512.png",
+                      color: primaryColor,
+                    )),
               ),
               width(20),
             ],
@@ -97,14 +127,11 @@ class _HomeViewState extends State<HomeView> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: ImageSlideshow(children: [
-                Image.network(
-                  "https://static.vecteezy.com/system/resources/thumbnails/002/294/890/small/digital-education-web-banner-design-teacher-on-monitor-to-explain-the-graph-online-education-e-learning-digital-education-platform-concept-header-or-footer-banner-free-vector.jpg",
-                  fit: BoxFit.cover,
-                ),
-                Image.network(
-                  "https://th.bing.com/th/id/R.f7cbbf0e72470ebdb7df695a4438a544?rik=cGm9AJf%2bNwImaA&riu=http%3a%2f%2fwww.4qs.in%2fuploads%2f4qspvtltd%2fdigi_sig.png&ehk=AiLJeMjBsudIPf4qoolBK3KwjWXzrnkgtLyXVX7SpaE%3d&risl=&pid=ImgRaw&r=0",
-                  fit: BoxFit.cover,
-                )
+                for (var data in slidershowimages)
+                  Image.network(
+                    data["images"],
+                    fit: BoxFit.cover,
+                  ),
               ]),
             ),
           ),
@@ -209,19 +236,8 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 width(30),
                 for (var data in popCourse)
-                  InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => CourseOverView(
-                                courseData: data,
-                              )));
-                    },
-                    child: Container(
-                        width: 155,
-                        height: 167,
-                        margin: EdgeInsets.symmetric(horizontal: 8),
-                        child: Image.asset("assets/temp/temp1.png")),
-                  ),
+                  if (data["course"].isNotEmpty)
+                    PopularCourse(id: data["course"][0])
               ],
             ),
           )

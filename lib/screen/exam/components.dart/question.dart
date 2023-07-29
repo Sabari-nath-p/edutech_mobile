@@ -28,7 +28,7 @@ class _questionViewState extends State<questionView> {
   @override
   Widget build(BuildContext context) {
     String questionText = widget.examData.questionData["question"];
-    String type = widget.examData.questionData["type"];
+    //String type = widget.examData.questionData["type"];
     return Column(
       children: [
         Image.asset("assets/image/base.png"),
@@ -50,31 +50,24 @@ class _questionViewState extends State<questionView> {
                 ],
               ),
               height(6),
-              if (type == "text" || type == "mix")
-                Row(
-                  children: [
-                    width(7),
-                    TexText(
-                      questionText,
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(.9),
-                          fontFamily: "Poppins",
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ],
+              if (widget.examData.questionData["question"] != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: TexText(
+                    questionText,
+                    style: TextStyle(
+                        color: Colors.white.withOpacity(.9),
+                        fontFamily: "Poppins",
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500),
+                  ),
                 ),
-              if (type == "image" || type == "mix") height(10),
-              if (type == "image")
+              //  if (widget.examData.questionData["question_image"] != null || type == "mix") height(10),
+              if (widget.examData.questionData["question_image"] != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Image.network(questionText),
                 ),
-              if (type == "mix")
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(widget.examData.questionData["image"]),
-                )
             ],
           ),
         ),

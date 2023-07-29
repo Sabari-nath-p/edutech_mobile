@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mathlab/screen/exam/models/ExamData.dart';
+import 'package:mathlab/screen/exam/result.dart';
+import 'package:mathlab/screen/exam/validationFile.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 import '../../../Constants/textstyle.dart';
 
 class TimerBar extends StatefulWidget {
   String time;
-  TimerBar({super.key, required this.time});
+  ExamData examData;
+  TimerBar({super.key, required this.time, required this.examData});
 
   @override
   State<TimerBar> createState() => _TimerBarState();
@@ -83,9 +87,17 @@ class _TimerBarState extends State<TimerBar> {
                 tx600("${hours}:${minutes}:${seconds}",
                     size: 20, color: Colors.white),
                 Expanded(child: Container()),
-                tx600(
-                  " Submit",
-                  size: 13,
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ExamAnswerValidation(
+                              examData: widget.examData,
+                            )));
+                  },
+                  child: tx600(
+                    " Submit",
+                    size: 13,
+                  ),
                 )
               ],
             ),

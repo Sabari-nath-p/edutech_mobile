@@ -22,10 +22,11 @@ class _SubjectListViewState extends State<SubjectListView> {
   var courseData;
   _SubjectListViewState({required this.courseData});
   List subjects = [];
+  bool loadFinish = false;
   loadSubjects() async {
     final Response = await http.get(
         Uri.parse(
-            "$baseurl/applicationview/courses/${courseData["slug_studyfield"]}/subjects/"),
+            "$baseurl/applicationview/courses/${courseData["course_unique_id"]}/subjects/"),
         headers: ({"Vary": "Accept"}));
 
     if (Response.statusCode == 200) {
@@ -34,6 +35,7 @@ class _SubjectListViewState extends State<SubjectListView> {
       setState(() {
         for (var data in js) {
           subjects.add(data);
+          loadFinish = true;
         }
       });
     }
@@ -56,7 +58,7 @@ class _SubjectListViewState extends State<SubjectListView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    height: 100,
+                    height: 112,
                     decoration: BoxDecoration(
 
                         // border: Border(
@@ -83,11 +85,12 @@ class _SubjectListViewState extends State<SubjectListView> {
                                   //Image.asset("assets/icons/mathlablogo.png"),
                                   ),
                             ),
+                            width(10),
                             Expanded(
                                 child: Container(
                               alignment: Alignment.center,
-                              child: tx700("Physics",
-                                  color: Colors.white, size: 23),
+                              child: tx700(courseData["field_of_study"],
+                                  color: Colors.white, size: 22),
                             )),
                             width(60)
                           ],
@@ -128,18 +131,24 @@ class _SubjectListViewState extends State<SubjectListView> {
                           children: [
                             height(20),
                             for (var data in subjects)
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => chapterListScreen(
-                                            subjectId: data["slug_subjects"],
-                                            SubjectName: data["subjects"],
-                                            courseID:
-                                                courseData["slug_studyfield"],
-                                          )));
-                                },
-                                child: subjectCard(data),
-                              ),
+                              if (data["modules"].isNotEmpty &&
+                                  data["is_active"])
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                chapterListScreen(
+                                                  subjectId: data["subject_id"]
+                                                      .toString(),
+                                                  SubjectName: data["subjects"],
+                                                  courseID: courseData[
+                                                          "course_unique_id"]
+                                                      .toString(),
+                                                )));
+                                  },
+                                  child: subjectCard(data),
+                                ),
                             height(20)
                           ],
                         ),

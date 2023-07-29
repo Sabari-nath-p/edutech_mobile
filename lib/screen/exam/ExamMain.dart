@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mathlab/screen/exam/ExamSolution.dart';
 import 'package:mathlab/screen/exam/components.dart/options.dart';
 import 'package:mathlab/screen/exam/components.dart/question.dart';
 import 'package:mathlab/screen/exam/components.dart/questionNumber.dart';
@@ -8,6 +9,8 @@ import 'package:mathlab/screen/exam/models/ExamData.dart';
 import 'package:mathlab/screen/exam/models/questionMode.dart';
 import '../../Constants/sizer.dart';
 import '../../Constants/textstyle.dart';
+
+late ExamData tempExampModel;
 
 class examMain extends StatefulWidget {
   ExamData examData;
@@ -27,6 +30,7 @@ class _examMainState extends State<examMain> {
 
     super.initState();
     loadQuestion();
+    tempExampModel = widget.examData;
   }
 
   loadQuestion() {
@@ -56,13 +60,22 @@ class _examMainState extends State<examMain> {
             Row(
               children: [
                 width(20),
-                Icon(Icons.arrow_back_ios_new_rounded),
+                InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Icon(Icons.arrow_back_ios_new_rounded)),
                 Expanded(
                     child: Container(
                         alignment: Alignment.center,
                         child: tx600(examContent.title.toString(),
                             size: 20, color: Colors.black))),
-                Icon(Icons.menu),
+                InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ExamSolution()));
+                    },
+                    child: Icon(Icons.menu)),
                 width(20)
               ],
             ),
@@ -70,6 +83,7 @@ class _examMainState extends State<examMain> {
             tx600("\t\t\t\t\t\t\tTime Left", size: 14, color: Colors.black),
             TimerBar(
               time: "1200",
+              examData: examContent,
             ),
             Expanded(
                 child: SingleChildScrollView(

@@ -64,21 +64,7 @@ class _CourseListViewState extends State<CourseListView> {
                       children: [
                         Row(
                           children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: SizedBox(
-                                  height: 60,
-                                  child: CircleAvatar(
-                                      backgroundColor: Colors.white54,
-                                      child: Icon(
-                                        Icons.arrow_back_ios_rounded,
-                                        color: Colors.black,
-                                      ))
-                                  //Image.asset("assets/icons/mathlablogo.png"),
-                                  ),
-                            ),
+                            width(60),
                             Expanded(
                                 child: Container(
                               alignment: Alignment.center,

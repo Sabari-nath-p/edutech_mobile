@@ -257,3 +257,158 @@ print(result) # Output: 7
 \end{document}
 
 """;
+
+String privacyPolicy = """<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #007BFF;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #007BFF;
+    }
+
+    ul {
+      padding-left: 30px;
+    }
+
+    p {
+      margin-bottom: 15px;
+    }
+
+    .section {
+      margin-top: 30px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      padding: 15px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #666;
+    }
+
+    .footer p {
+      margin: 0;
+    }
+
+    .contact-details {
+      margin-top: 40px;
+      text-align: center;
+      color: #666;
+    }
+
+    .address {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .email {
+      margin-top: 5px;
+    }
+
+    .phone {
+      margin-top: 5px;
+    }
+
+    .website {
+      margin-top: 5px;
+      color: #007BFF;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>MathLab Cochin - Terms and Policies</h1>
+
+  <p>Effective Date: 01 - AUGEST - 2023</p>
+
+  <div class="section">
+    <h2>1. Acceptance of Terms</h2>
+    <p>By downloading, installing, accessing, or using the MathLab Cochin mobile app, including video classes, PDF notes, and exams, you acknowledge that you have read, understood, and agree to be bound by these terms and policies. If you do not agree with any part of these terms, you may not use our mobile app.</p>
+  </div>
+
+  <div class="section">
+    <h2>2. Account Creation and Security</h2>
+    <p>To access MathLab Cochin's services through the mobile app, you will be required to create an account using your valid internet login credentials. You are responsible for maintaining the confidentiality of your account information and for all activities that occur under your account. Please ensure that the information provided during registration is accurate, current, and complete.</p>
+  </div>
+
+  <div class="section">
+    <h2>3. Data Privacy</h2>
+    <p>MathLab Cochin respects your privacy and is committed to protecting your personal information. We only collect and use the minimum necessary data to provide our services effectively. The mobile app does not access any data other than your internet login credentials. Additionally, we do not save any data on your phone or any other device you use to access our mobile app.</p>
+  </div>
+
+  <div class="section">
+    <h2>4. Intellectual Property</h2>
+    <p>All content provided through the MathLab Cochin mobile app, including video classes, PDF notes, and exam materials, is the intellectual property of MathLab Cochin or its licensors. You may not copy, modify, distribute, display, license, or reproduce any content from the mobile app without explicit written permission from us.</p>
+  </div>
+
+  <div class="section">
+    <h2>5. Prohibited Activities</h2>
+    <p>When using the MathLab Cochin mobile app, you agree not to:</p>
+    <ul>
+      <li>Violate any applicable laws or regulations.</li>
+      <li>Infringe upon the rights of others, including copyrights and trademarks.</li>
+      <li>Attempt to gain unauthorized access to our mobile app, servers, or other user accounts.</li>
+      <li>Transmit any harmful code, viruses, or malware.</li>
+      <li>Use MathLab Cochin for any illegal or unethical purposes.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>6. User Conduct</h2>
+    <p>You are responsible for your conduct within the MathLab Cochin mobile app. Be respectful to other users and instructors. Do not engage in any form of harassment, hate speech, or disruptive behavior. MathLab Cochin reserves the right to suspend or terminate your account if you violate this conduct policy.</p>
+  </div>
+
+  <div class="section">
+    <h2>7. Disclaimer of Warranties</h2>
+    <p>The MathLab Cochin mobile app is provided on an "as is" and "as available" basis. We do not guarantee the accuracy, completeness, or timeliness of the content provided through the app. While we strive to deliver the best possible experience, we do not warrant that our mobile app will be error-free or uninterrupted.</p>
+  </div>
+
+  <div class="section">
+    <h2>8. Limitation of Liability</h2>
+    <p>MathLab Cochin shall not be liable for any direct, indirect, incidental, special, or consequential damages arising from the use of our mobile app or any content provided therein. In no event shall our total liability exceed the amount paid by you, if any, for accessing our services through the mobile app.</p>
+  </div>
+
+  <div class="footer">
+    <p>If you have any questions or concerns regarding these terms and policies, please contact us at <a href="mailto:support@mathlabcochin.com">support@mathlabcochin.com</a>.</p>
+    <p>By using the MathLab Cochin mobile app, you signify your agreement to these terms and policies. Thank you for choosing MathLab Cochin as your e-learning platform!</p>
+    <p>[Your Name]</p>
+    <p>MathLab Cochin Team</p>
+  </div>
+
+  <div class="contact-details">
+    <div class="address">
+      <p>MathLab Cochin</p>
+      <p>First Floor, Anjikkath Tower, Near Metro Pillar No.363,</p>
+      <p>Pathadippalam, Koonamthai (P O), Edappally,</p>
+      <p>Cochin-682024</p>
+    </div>
+    <div class="email">
+      <p>Email: <a href="mailto:support@mathlabcochin.com">support@mathlabcochin.com</a></p>
+    </div>
+    <div class="phone">
+      <p>Phone: +91 9846613476</p>
+    </div>
+    <div class="website">
+     
+
+""";

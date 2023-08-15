@@ -2,20 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
-import 'package:mathlab/screen/exam/ExamMain.dart';
-import 'package:mathlab/screen/exam/components.dart/questionNumber.dart';
+import 'package:mathlab/screen/exam/ExamSolution.dart';
 import 'package:mathlab/screen/exam/models/ExamData.dart';
 
 class ExamResult extends StatefulWidget {
-  ExamResult({
-    super.key,
-  });
+  List answerStatus;
+  ExamData examData;
+  int seconds;
+  double total;
+  ExamResult(
+      {super.key,
+      required this.answerStatus,
+      required this.examData,
+      required this.seconds,
+      required this.total});
 
   @override
   State<ExamResult> createState() => _ExamResultState();
 }
 
 class _ExamResultState extends State<ExamResult> {
+  bool status = true;
+  double passMark = 0;
+  double totalMark = 0;
+  String minute = "";
+  String hours = "";
+  String second = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadcontent();
+  }
+
+  //String hours = "0";
+
+  loadcontent() {
+    setState(() {
+      if (widget.total > 0) status = true;
+      totalMark = widget.examData.totalmark.toDouble();
+      print(widget.seconds);
+      Duration duration = Duration(seconds: widget.seconds);
+      hours = duration.inHours.toString().padLeft(0, '2');
+      minute = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+      second = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -48,7 +82,7 @@ class _ExamResultState extends State<ExamResult> {
             height(20),
             Padding(
               padding: const EdgeInsets.all(20),
-              child: tx600("Congratulations,", size: 19),
+              child: tx600("Score Card", size: 19),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -73,7 +107,7 @@ class _ExamResultState extends State<ExamResult> {
                               color: Colors.white,
                             ),
                             child: Icon(
-                              Icons.check,
+                              (status) ? Icons.check : Icons.close,
                               color: Color(
                                 0xff9B1818,
                               ),
@@ -81,14 +115,21 @@ class _ExamResultState extends State<ExamResult> {
                             ),
                           ),
                           width(10),
-                          tx500("Status\nPassed", color: Colors.white, size: 16)
+                          if (status)
+                            tx500("Status\nPassed",
+                                color: Colors.white, size: 16),
+                          if (!status)
+                            tx500("Status\nFailed",
+                                color: Colors.white, size: 16)
                         ],
                       ),
                       Expanded(
                           child: Container(
                               alignment: Alignment.center,
-                              child: tx600("30/45",
-                                  size: 25, color: Colors.white)))
+                              child: tx600(
+                                  "${widget.total.toInt()}/${totalMark.toInt()}",
+                                  size: 25,
+                                  color: Colors.white)))
                     ],
                   ),
                 ),
@@ -126,7 +167,7 @@ class _ExamResultState extends State<ExamResult> {
                       Expanded(
                           child: Container(
                               alignment: Alignment.center,
-                              child: tx600("20 m: 35 s",
+                              child: tx600("$minute m: $second s",
                                   size: 22, color: Colors.white)))
                     ],
                   ),
@@ -137,7 +178,7 @@ class _ExamResultState extends State<ExamResult> {
             Container(
                 width: double.infinity,
                 alignment: Alignment.center,
-                child: tx600("Score Card", size: 20)),
+                child: tx600("Answer Sheet", size: 20)),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -173,6 +214,7 @@ class _ExamResultState extends State<ExamResult> {
                 Text("unattended"),
               ],
             ),
+
             Expanded(
               child: Container(
                 alignment: Alignment.topCenter,
@@ -184,11 +226,14 @@ class _ExamResultState extends State<ExamResult> {
                     runSpacing: 8,
                     spacing: 8,
                     children: [
-                      for (int i = 0; i < tempExampModel.questions.length; i++)
+                      for (int i = 0; i < widget.answerStatus.length; i++)
                         InkWell(
                           onTap: () {
-                            tempExampModel.jumpto(i);
-                            Navigator.of(context).pop();
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => ExamSolution(
+                                    qmodel: widget.examData.questions[i],
+                                    currentQuesstion: i,
+                                    examData: widget.examData)));
                           },
                           child: Container(
                             width: 50,
@@ -196,12 +241,11 @@ class _ExamResultState extends State<ExamResult> {
                             height: 50,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                color: (tempExampModel.questions[i].status ==
-                                        -1)
-                                    ? Colors.grey
-                                    : (tempExampModel.questions[i].status == 1)
+                                color: (widget.answerStatus[i] == 0)
+                                    ? Color(0xffE5B027)
+                                    : (widget.answerStatus[i] == 1)
                                         ? Color(0xff009E52)
-                                        : Color(0xffE5B027)),
+                                        : Colors.red),
                             child: tx600("${i + 1}", color: Colors.white),
                           ),
                         )

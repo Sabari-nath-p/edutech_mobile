@@ -118,7 +118,7 @@ class _profileViewState extends State<profileView> {
                         builder: (context) => PrivacyPolicyScreen()));
                   },
                   child: profileListCard2("Terms and Policy")),
-              profileListCard2("Privacy Policy"),
+              if (false) profileListCard2("Privacy Policy"),
               InkWell(
                   onTap: () {
                     launchUrl(Uri.parse("https://mathlabcochin.com/#enquiry"));

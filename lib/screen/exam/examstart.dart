@@ -41,6 +41,7 @@ class _ExamStartState extends State<ExamStart> {
   String examduration = "";
   String instructionSet = "";
   ExamData examData = ExamData();
+  int timesecond = 0;
   loadExamContent() async {
     final response = await http.get(Uri.parse(
         "$baseurl/applicationview/courses/${widget.courseid}/subjects/${widget.subjectid}/modules/${widget.moduleid}/exams/${widget.examid}"));
@@ -55,6 +56,15 @@ class _ExamStartState extends State<ExamStart> {
         examData.fetchQuestion(data["multiplechoice"], "multiplechoice");
         examData.fetchQuestion(data["multiselect"], "multiselect");
         examData.fetchQuestion(data["numericals"], "numericals");
+        examData.FetchExam(data);
+        List tm = examduration.split(":");
+        int second = int.parse(tm[2]);
+        int minute = int.parse(tm[1]);
+        int hour = int.parse(tm[0]);
+
+        Duration duration =
+            Duration(hours: hour, seconds: second, minutes: minute);
+        timesecond = duration.inSeconds;
       });
     }
   }
@@ -157,6 +167,7 @@ class _ExamStartState extends State<ExamStart> {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => examMain(
                                 examData: examData,
+                                second: timesecond,
                               )));
                     },
                     child: ButtonContainer(tx600("Start", color: Colors.white),

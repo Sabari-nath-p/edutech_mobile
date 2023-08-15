@@ -130,6 +130,8 @@ class _ExamOptionsState extends State<ExamOptions> {
                         width(20),
                         Expanded(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               if (qnmodel
                                       .questionData["option${i + 1}_image"] !=

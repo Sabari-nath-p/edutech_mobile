@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/course_overview.dart';
@@ -20,31 +22,45 @@ class _PopularCourseState extends State<PopularCourse> {
     loadCourse();
   }
 
+  String ImageUrl =
+      "https://th.bing.com/th/id/OIP.T173YISP_ZxI1btAPB2zbAAAAA?pid=ImgDet&w=421&h=421&rs=1";
   loadCourse() async {
+    print("popular cours");
     final response = await http
-        .get(Uri.parse("$baseurl/applicationview/course/${widget.id}"));
-
+        .get(Uri.parse("$baseurl/applicationview/courses/${widget.id}/"));
+    print(response.body);
     if (response.statusCode == 200) {
       print(response.body);
+
+      data = json.decode(response.body);
+      print(data["cover_image"]);
+      setState(() {
+        if (data["cover_image"] != null) {
+          ImageUrl = data["cover_image"].toString();
+        }
+      });
     }
   }
 
+  var data;
   @override
   Widget build(BuildContext context) {
-    return (true)
-        ? Container()
-        : InkWell(
-            /* onTap: () {
+    return InkWell(
+      onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => CourseOverView(
-                  courseData: data,
+                  courseData: data["course_unique_id"].toString(),
                 )));
-      },*/
-            child: Container(
-                width: 155,
-                height: 167,
-                margin: EdgeInsets.symmetric(horizontal: 8),
-                child: Image.asset("assets/temp/temp1.png")),
-          );
+      },
+      child: Container(
+        width: 155,
+        height: 167,
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.network(ImageUrl),
+        ),
+      ),
+    );
   }
 }

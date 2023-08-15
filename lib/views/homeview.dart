@@ -35,7 +35,7 @@ class _HomeViewState extends State<HomeView> {
     // TODO: implement initState
     super.initState();
     loaddata();
-    if (popCourse.isEmpty) loadpopularCouse();
+    loadpopularCouse();
     if (slidershowimages.isEmpty) loadSlideShow();
   }
 
@@ -47,9 +47,16 @@ class _HomeViewState extends State<HomeView> {
         .get(Uri.parse("$baseurl/applicationview/popularcourseview/"));
     if (Response.statusCode == 200) {
       setState(() {
+        // print(Response.body);
         var js = json.decode(Response.body);
-        popCourse = js;
-        print(js);
+        for (var data in js) {
+          //   popCourse = data["course"];
+          //  print(data);
+          popCourse = data["course"];
+          break;
+        }
+        //popCourse = js[0]["course"];
+        //  print(popCourse);
       });
     }
   }
@@ -62,7 +69,7 @@ class _HomeViewState extends State<HomeView> {
       setState(() {
         var js = json.decode(response.body);
         slidershowimages = js;
-        print(js);
+        // print(js);
       });
     }
   }
@@ -121,20 +128,21 @@ class _HomeViewState extends State<HomeView> {
                 size: 20, color: Colors.black),
           ),
           height(10),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 30),
-            height: 160,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: ImageSlideshow(children: [
-                for (var data in slidershowimages)
-                  Image.network(
-                    data["images"],
-                    fit: BoxFit.cover,
-                  ),
-              ]),
+          if (slidershowimages.isNotEmpty)
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 30),
+              height: 160,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ImageSlideshow(children: [
+                  for (var data in slidershowimages)
+                    Image.network(
+                      data["images"],
+                      fit: BoxFit.cover,
+                    ),
+                ]),
+              ),
             ),
-          ),
           //height(20),
           if (false)
             Container(
@@ -235,9 +243,7 @@ class _HomeViewState extends State<HomeView> {
             child: Row(
               children: [
                 width(30),
-                for (var data in popCourse)
-                  if (data["course"].isNotEmpty)
-                    PopularCourse(id: data["course"][0])
+                for (var data in popCourse) PopularCourse(id: data)
               ],
             ),
           )

@@ -9,6 +9,9 @@ import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/chapterlist.dart';
 import 'package:http/http.dart' as http;
 
+
+import '../screen/videoplayer.dart';
+
 class SubjectListView extends StatefulWidget {
   var courseData;
   SubjectListView({super.key, required this.courseData});
@@ -135,17 +138,36 @@ class _SubjectListViewState extends State<SubjectListView> {
                                   data["is_active"])
                                 InkWell(
                                   onTap: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                chapterListScreen(
-                                                  subjectId: data["subject_id"]
-                                                      .toString(),
-                                                  SubjectName: data["subjects"],
-                                                  courseID: courseData[
-                                                          "course_unique_id"]
-                                                      .toString(),
-                                                )));
+                                    if (data["direct_slug"] == "" ||
+                                        data["direct_slug"] == null) {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  chapterListScreen(
+                                                    subjectId:
+                                                        data["subject_id"]
+                                                            .toString(),
+                                                    SubjectName:
+                                                        data["subjects"],
+                                                    courseID: courseData[
+                                                            "course_unique_id"]
+                                                        .toString(),
+                                                  )));
+                                    } else {
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  VideoPlayerScreen(
+                                                    subjectID:
+                                                        data["subject_id"]
+                                                            .toString(),
+                                                    chapterID:
+                                                        data["direct_slug"],
+                                                    courseID: courseData[
+                                                            "course_unique_id"]
+                                                        .toString(),
+                                                  )));
+                                    }
                                   },
                                   child: subjectCard(data),
                                 ),

@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/Constants/urls.dart';
+import 'package:mathlab/main.dart';
 import 'package:mathlab/screen/chapterlist.dart';
 import 'package:http/http.dart' as http;
+import 'package:mathlab/screen/course_overview.dart';
 import 'package:mathlab/views/subjectlist.dart';
+import 'package:quickalert/quickalert.dart';
 
 List course = [];
 
@@ -95,10 +99,44 @@ class _CourseListViewState extends State<CourseListView> {
                             if (data["is_active"] && data["subjects_count"] > 0)
                               InkWell(
                                 onTap: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => SubjectListView(
-                                            courseData: data,
-                                          )));
+                                  if (!data["only_paid"] ||
+                                      (data["only_paid"] &&
+                                          checkCourseActive(
+                                              data["course_unique_id"])))
+                                    Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SubjectListView(
+                                                  courseData: data,
+                                                )));
+                                  else {
+                                    Fluttertoast.showToast(
+                                        msg:
+                                            "Only paid member can access this course ");
+                                    QuickAlert.show(
+                                        context: context,
+                                        type: QuickAlertType.confirm,
+                                        text:
+                                            'Do you want to purchase this course',
+                                        confirmBtnText: 'Yes',
+                                        cancelBtnText: 'No',
+                                        // barrierColor: primaryColor,
+                                        onCancelBtnTap: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        confirmBtnColor: Colors.green,
+                                        onConfirmBtnTap: () {
+                                          print(data["course_unique_id"]);
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CourseOverView(
+                                                          courseData: data[
+                                                                  "course_unique_id"]
+                                                              .toString())));
+                                        });
+                                  }
                                 },
                                 child: subjectCard(data),
                               )

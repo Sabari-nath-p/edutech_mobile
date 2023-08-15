@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,11 +11,16 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/Constants/urls.dart';
+import 'package:mathlab/main.dart';
+import 'package:mathlab/screen/edPlayer.dart';
 import 'package:mathlab/screen/exam/examstart.dart';
 import 'package:mathlab/screen/noteScreen.dart';
 import 'package:pod_player/pod_player.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../Constants/colors.dart';
+import 'exam/models/ExamData.dart';
+import 'exam/validationFile.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   String chapterID;
@@ -33,6 +41,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   bool isvideoLoaded = false;
   int selectedIndex = -1;
   List videoData = [];
+
   @override
   void initState() {
     super.initState();
@@ -41,11 +50,45 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     loadExamlist();
   }
 
+  late var ctr;
+
   loadVideo(String videoID) async {
+    //final Map<String, String> headers = <String, String>{};
+    //https://vimeo.com/853555974?share=copy
+    //  headers['Authorization'] = 'bc09f483c2c74f9df6c7d904de7ada01';
+    String tk = 'c15bd5941857f4e8680986c11a94cf38';
+    print(videoID);
+    final Map<String, String> headers = <String, String>{};
+    headers['Authorization'] = 'Bearer ${tk}';
     controller = PodPlayerController(
-      playVideoFrom: PlayVideoFrom.vimeo(videoID),
+      playVideoFrom: PlayVideoFrom.vimeo("76979871",
+          hash: "8272103f6e",
+          httpHeaders: headers,
+          videoPlayerOptions: VideoPlayerOptions()),
     )..initialise();
     controller.play();
+
+    ctr = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+          },
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) {},
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https://www.youtube.com/')) {
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(
+          Uri.parse('https://player.vimeo.com/video/76979871?h=8272103f6e'));
   }
 
   @override
@@ -72,7 +115,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   loadNoteList() async {
     final noteResponse = await http.get(Uri.parse(
-        "$baseurl/applicationview/courses/${widget.courseID}/subjects/${widget.subjectID}/modules/${widget.chapterID}/notes"));
+        "$baseurl/applicationview/courses/${widget.courseID}/subjects/${widget.subjectID}/modules/${widget.chapterID}/notes/"));
 
     if (noteResponse.statusCode == 200) {
       var js = json.decode(noteResponse.body);
@@ -134,7 +177,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           ),
           if (isvideoLoaded)
             Container(
-                height: 215, child: PodVideoPlayer(controller: controller)),
+                height: 215,
+                child: WebViewWidget(
+                    controller:
+                        ctr)), // PodVideoPlayer(controller: controller)),
           if (isvideoLoaded)
             Container(
               decoration: BoxDecoration(
@@ -173,7 +219,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     for (int i = 0; i < videoData.length; i++)
                       if (videoData[i]["video_id"] != null)
                         videoListCard(i)
-                      else if ((videoData[i]["pdf_link"] != null))
+                      else if ((videoData[i]["pdf"] != null))
                         noteListCard(i)
                       else if ((videoData[i]["exam_name"] != null))
                         ExamListCard(i),
@@ -190,17 +236,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   videoListCard(int i) {
     return InkWell(
       onTap: () {
-        if (videoData[i]["access_type"] == 2) {
-          setState(() {
-            if (!isvideoLoaded)
-              loadVideo(videoData[i]["video_id"]);
-            else {
-              controller.changeVideo(
-                  playVideoFrom: PlayVideoFrom.vimeo(videoData[i]["video_id"]));
-            }
-            isvideoLoaded = true;
-            selectedIndex = i;
-          });
+        if (videoData[i]["access_type"] == 2 ||
+            checkCourseActive(int.parse(widget.courseID))) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => edPlayer(
+                    url: videoData[i]["video_id"].toString(),
+                  )));
+          // setState(() {
+          //   if (!isvideoLoaded)
+          //     loadVideo(videoData[i]["video_id"]);
+          //   else {
+          //     controller.changeVideo(
+          //         playVideoFrom: PlayVideoFrom.vimeo(videoData[i]["video_id"]));
+          //   }
+          //   isvideoLoaded = true;
+          //   selectedIndex = i;
+          // });
         } else {
           Fluttertoast.showToast(
               msg: "Prime leature , only avilable to Enrolled user");
@@ -268,12 +319,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   noteListCard(int i) {
     return InkWell(
       onTap: () {
-        if (videoData[i]["access_type"] == 2) {
+        if (videoData[i]["access_type"] == 2 ||
+            checkCourseActive(int.parse(widget.courseID))) {
           if (isvideoLoaded) controller.pause();
 
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) =>
-                  noteScreen(notelink: videoData[i]["pdf_link"])));
+              builder: (context) => noteScreen(notelink: videoData[i]["pdf"])));
         } else {
           Fluttertoast.showToast(
               msg: "Prime leature , only avilable to Enrolled user");
@@ -338,23 +389,36 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   ExamListCard(int i) {
     return InkWell(
-      onTap: () {
-        if (videoData[i]["access_type"] == 1) {
-          if (isvideoLoaded) controller.pause();
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ExamStart(
-                    examid: videoData[i]["exam_unique_id"].toString(),
-                    courseid: widget.courseID,
-                    subjectid: widget.subjectID,
-                    moduleid: widget.chapterID,
-                  )));
+      onTap: () async {
+        Box bk = await Hive.openBox("EXAM_RESULT");
+        var data = bk.get(videoData[i]["exam_unique_id"].toString());
+        if (data == null) {
+          if (videoData[i]["access_type"] == 2 ||
+              checkCourseActive(int.parse(widget.courseID))) {
+            if (isvideoLoaded) controller.pause();
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ExamStart(
+                      examid: videoData[i]["exam_unique_id"].toString(),
+                      courseid: widget.courseID,
+                      subjectid: widget.subjectID,
+                      moduleid: widget.chapterID,
+                    )));
+          } else {
+            Fluttertoast.showToast(
+                msg: "Prime leature , only avilable to Enrolled user");
+          }
         } else {
-          Fluttertoast.showToast(
-              msg: "Prime leature , only avilable to Enrolled user");
+          ExamData examData = ExamData();
+          examData.id = int.parse(data["exam_id"]);
+          // examData.fetchAnswer(data["response"]);
+
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) =>
+                  ExamAnswerValidation(examData: examData, data: data)));
         }
       },
       child: Container(
-        height: (i == selectedIndex) ? 80 : 80,
+        height: (i == selectedIndex) ? 90 : 90,
         constraints: BoxConstraints(),
         margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         decoration: BoxDecoration(
@@ -392,6 +456,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 top: 10,
                 left: 60,
                 right: 10,
+                bottom: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

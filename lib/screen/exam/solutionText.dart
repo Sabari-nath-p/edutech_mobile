@@ -5,19 +5,17 @@ import 'package:mathlab/screen/exam/ExamMain.dart';
 import 'package:mathlab/screen/exam/models/questionMode.dart';
 import 'package:tex_text/tex_text.dart';
 
-import '../models/ExamData.dart';
-
-class questionView extends StatefulWidget {
+class SolutionText extends StatefulWidget {
   QuestionListModel examData;
   int currentQuestion;
-  questionView(
+  SolutionText(
       {super.key, required this.examData, required this.currentQuestion});
 
   @override
-  State<questionView> createState() => _questionViewState();
+  State<SolutionText> createState() => _SolutionTextState();
 }
 
-class _questionViewState extends State<questionView> {
+class _SolutionTextState extends State<SolutionText> {
   @override
   void initState() {
     // TODO: implement initState
@@ -27,11 +25,12 @@ class _questionViewState extends State<questionView> {
   //String questionText = "";
   @override
   Widget build(BuildContext context) {
-    String questionText = widget.examData.questionData["question"];
+    String questionText =
+        widget.examData.questionData["solution_text"].toString();
     //String type = widget.examData.questionData["type"];
     return Column(
       children: [
-        Image.asset("assets/image/base.png"),
+        if (false) Image.asset("assets/image/base.png"),
         Container(
           padding: EdgeInsets.all(10),
           margin: EdgeInsets.symmetric(horizontal: 20),
@@ -45,13 +44,13 @@ class _questionViewState extends State<questionView> {
             children: [
               Row(
                 children: [
-                  tx600(" Question ${widget.currentQuestion + 1}",
+                  tx600(" Solution ",
                       color: Colors.white.withOpacity(.9), size: 14),
                   Expanded(child: Container()),
                 ],
               ),
               height(6),
-              if (widget.examData.questionData["question"] != null)
+              if (widget.examData.questionData["solution_text"] != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: TexText(
@@ -64,10 +63,11 @@ class _questionViewState extends State<questionView> {
                   ),
                 ),
               //  if (widget.examData.questionData["question_image"] != null || type == "mix") height(10),
-              if (widget.examData.questionData["question_image"] != null)
+              if (widget.examData.questionData["solution_image"] != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Image.network(questionText),
+                  child: Image.network(
+                      widget.examData.questionData["solution_image"]),
                 ),
             ],
           ),

@@ -7,6 +7,7 @@ Text tx500(String text,
         String family = "Poppins"}) =>
     Text(text,
         textAlign: textAlign,
+        softWrap: true,
         style: TextStyle(
             fontSize: size,
             color: color,
@@ -19,6 +20,7 @@ Text tx400(String text,
         String family = "Poppins"}) =>
     Text(text,
         textAlign: textAlign,
+        softWrap: true,
         style: TextStyle(
             fontSize: size,
             color: color,
@@ -31,6 +33,7 @@ Text tx600(String text,
         String family = "Poppins"}) =>
     Text(text,
         textAlign: textAlign,
+        softWrap: true,
         style: TextStyle(
             fontSize: size,
             color: color,
@@ -43,6 +46,7 @@ Text tx700(String text,
         String family = "Poppins"}) =>
     Text(text,
         textAlign: textAlign,
+        softWrap: true,
         style: TextStyle(
             fontSize: size,
             color: color,

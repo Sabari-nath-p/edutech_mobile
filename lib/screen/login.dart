@@ -8,7 +8,10 @@ import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/homescreen.dart';
+import 'package:mathlab/screen/purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -294,13 +297,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     print(Response.body);
-    print(Response.statusCode);
+    // print(Response.statusCode);
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
 
       //  print(js["token"]);
       //  print(js);
-
+      print(Response.body);
       if (js == "The username or password is incorrect") {
         Fluttertoast.showToast(msg: "Invalid credentials");
         setState(() {
@@ -312,9 +315,22 @@ class _LoginScreenState extends State<LoginScreen> {
         pref.setString("EMAIL", email);
         pref.setString("PASSWORD", password);
         pref.setString("TOKEN", js["token"]);
-        Navigator.of(context).pop();
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+        setState(() {
+          loading = false;
+        });
+        final res = await http.get(
+            Uri.parse("$baseurl/applicationview/userlist/$email/"),
+            headers: ({"Authorization": "token ${js["token"]}"}));
+        print(res.body);
+        if (res.statusCode == 200) {
+          var jss = json.decode(res.body);
+          pref.setString("NAME", jss["name"]);
+          updatePurchaseCourse(jss["purchase_list"]["purchased_courses"]);
+          print(res.body);
+          Navigator.of(context).pop();
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+        } else {}
       }
       print("working");
     } else {

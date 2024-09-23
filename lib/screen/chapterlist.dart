@@ -39,14 +39,14 @@ class _chapterListScreenState extends State<chapterListScreen> {
   loadChapters() async {
     final Response = await http.get(Uri.parse(
         "$baseurl/applicationview/courses/$courseID/subjects/$subjectId/modules/"));
-    print(Response.statusCode);
-    print(Response.body);
+    //print(Response.statusCode);
+    //print(Response.body);
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
       setState(() {
         chapters = js;
       });
-      print(Response.body);
+      //print(Response.body);
     }
   }
 
@@ -56,7 +56,7 @@ class _chapterListScreenState extends State<chapterListScreen> {
 
     super.initState();
     loadChapters();
-    print("working");
+    //print("working");
   }
 
   @override

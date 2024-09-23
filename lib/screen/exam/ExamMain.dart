@@ -8,6 +8,8 @@ import 'package:mathlab/screen/exam/components.dart/timerBar.dart';
 import 'package:http/http.dart' as http;
 import 'package:mathlab/screen/exam/models/ExamData.dart';
 import 'package:mathlab/screen/exam/models/questionMode.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 import '../../Constants/colors.dart';
 import '../../Constants/sizer.dart';
 import '../../Constants/textstyle.dart';
@@ -17,6 +19,7 @@ late ExamData tempExampModel;
 class examMain extends StatefulWidget {
   ExamData examData;
   int second;
+
   examMain({super.key, required this.examData, required this.second});
 
   @override
@@ -36,6 +39,8 @@ class _examMainState extends State<examMain> {
     tempExampModel = widget.examData;
   }
 
+  ValueNotifier examNotifier = ValueNotifier(10);
+
   bool ExamComplete = false;
   loadQuestion() {
     examContent.notifier.addListener(() {
@@ -47,12 +52,29 @@ class _examMainState extends State<examMain> {
     });
   }
 
+  examSubmit() {
+    QuickAlert.show(
+        context: context,
+        type: QuickAlertType.confirm,
+        title: "Are your want to exit",
+        confirmBtnText: "Yes",
+        onCancelBtnTap: () {
+          Navigator.of(context).pop();
+        },
+        onConfirmBtnTap: () {
+          Navigator.of(context).pop();
+          examNotifier.value++;
+        },
+        text: "You have not attempted all question");
+    //examNotifier.value++;
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
 
-    examContent.notifier.removeListener(() {});
+    //examContent.notifier.removeListener(() {});
   }
 
   @override
@@ -60,126 +82,135 @@ class _examMainState extends State<examMain> {
     QuestionListModel qmodel = examContent.getCurrentQuestion();
     return SafeArea(
       child: Scaffold(
-        body: Container(
-            child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            height(20),
-            Row(
-              children: [
-                width(20),
-                InkWell(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Icon(Icons.arrow_back_ios_new_rounded)),
-                Expanded(
-                    child: Container(
-                        constraints:
-                            BoxConstraints(maxWidth: 200, maxHeight: 30),
-                        alignment: Alignment.center,
-                        child: tx600(examContent.title.toString(),
-                            textAlign: TextAlign.center,
-                            size: 20,
-                            color: Colors.black))),
-                InkWell(onTap: () {}, child: Icon(Icons.menu)),
-                width(20)
-              ],
-            ),
-            height(15),
-            if (!ExamComplete)
-              tx600("\t\t\t\t\t\t\tTime Left", size: 14, color: Colors.black),
-            if (!ExamComplete)
-              Opacity(
-                opacity: (!ExamComplete) ? 1 : 0,
-                child: TimerBar(
-                  time: widget.second.toString(),
-                  examData: examContent,
-                ),
-              ),
-            if (!ExamComplete)
-              Expanded(
-                  child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    questionView(
-                      examData: qmodel,
-                      currentQuestion: examContent.currentQuesstion,
-                    ),
-                    ExamOptions(
-                      examData: examContent,
-                    )
-                  ],
-                ),
-              )),
-            if (ExamComplete)
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      LoadingAnimationWidget.beat(
-                          color: primaryColor, size: 40),
-                      tx600("Timeout\nValidating Answer",
-                          textAlign: TextAlign.center)
-                    ],
-                  ),
-                ),
-              ),
-            if (!ExamComplete)
+        body: WillPopScope(
+          onWillPop: () async {
+            examSubmit();
+            return false;
+          },
+          child: Container(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              height(20),
               Row(
                 children: [
                   width(20),
-                  Visibility(
-                    visible: (examContent.currentQuesstion != 0),
-                    child: InkWell(
+                  InkWell(
                       onTap: () {
-                        examContent.DecrementQuestion();
+                        examSubmit();
+                        // Navigator.of(context).pop();
                       },
-                      child: ButtonContainer(
-                          Icon(
-                            Icons.arrow_back_ios,
-                            color: Colors.white,
-                          ),
-                          radius: 10),
-                    ),
-                  ),
+                      child: Icon(Icons.arrow_back_ios_new_rounded)),
                   Expanded(
                       child: Container(
+                          constraints:
+                              BoxConstraints(maxWidth: 200, maxHeight: 30),
                           alignment: Alignment.center,
-                          child: InkWell(
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => Material(
-                                      color: Colors.transparent,
-                                      child: QuestionNumber(
-                                        edata: examContent,
-                                      )));
-                            },
-                            child: ButtonContainer(
-                                tx600("Question", color: Colors.white),
-                                width: 120,
-                                radius: 10),
-                          ))),
-                  Visibility(
-                    visible: (examContent.currentQuesstion !=
-                        examContent.questions.length - 1),
-                    child: InkWell(
-                      onTap: () {
-                        examContent.IncrementQuestion();
-                      },
-                      child: ButtonContainer(tx600("Next", color: Colors.white),
-                          radius: 10),
-                    ),
-                  ),
-                  width(20),
+                          child: tx600(examContent.title.toString(),
+                              textAlign: TextAlign.center,
+                              size: 20,
+                              color: Colors.black))),
+                  InkWell(onTap: () {}, child: Icon(Icons.menu)),
+                  width(20)
                 ],
               ),
-            height(20)
-          ],
-        )),
+              height(15),
+              if (!ExamComplete)
+                tx600("\t\t\t\t\t\t\tTime Left", size: 14, color: Colors.black),
+              if (!ExamComplete)
+                Opacity(
+                  opacity: (!ExamComplete) ? 1 : 0,
+                  child: TimerBar(
+                    time: widget.second.toString(),
+                    examData: examContent,
+                    notifier: examNotifier,
+                  ),
+                ),
+              if (!ExamComplete)
+                Expanded(
+                    child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      questionView(
+                        examData: qmodel,
+                        currentQuestion: examContent.currentQuesstion,
+                      ),
+                      ExamOptions(
+                        examData: examContent,
+                      )
+                    ],
+                  ),
+                )),
+              if (ExamComplete)
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        LoadingAnimationWidget.beat(
+                            color: primaryColor, size: 40),
+                        tx600("Timeout\nValidating Answer",
+                            textAlign: TextAlign.center)
+                      ],
+                    ),
+                  ),
+                ),
+              if (!ExamComplete)
+                Row(
+                  children: [
+                    width(20),
+                    Visibility(
+                      visible: (examContent.currentQuesstion != 0),
+                      child: InkWell(
+                        onTap: () {
+                          examContent.DecrementQuestion();
+                        },
+                        child: ButtonContainer(
+                            Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.white,
+                            ),
+                            radius: 10),
+                      ),
+                    ),
+                    Expanded(
+                        child: Container(
+                            alignment: Alignment.center,
+                            child: InkWell(
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => Material(
+                                        color: Colors.transparent,
+                                        child: QuestionNumber(
+                                          edata: examContent,
+                                        )));
+                              },
+                              child: ButtonContainer(
+                                  tx600("Question", color: Colors.white),
+                                  width: 120,
+                                  radius: 10),
+                            ))),
+                    Visibility(
+                      visible: (examContent.currentQuesstion !=
+                          examContent.questions.length - 1),
+                      child: InkWell(
+                        onTap: () {
+                          examContent.IncrementQuestion();
+                        },
+                        child: ButtonContainer(
+                            tx600("Next", color: Colors.white),
+                            radius: 10),
+                      ),
+                    ),
+                    width(20),
+                  ],
+                ),
+              height(20)
+            ],
+          )),
+        ),
       ),
     );
   }

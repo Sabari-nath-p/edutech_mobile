@@ -1,4 +1,4 @@
-package com.example.edutech_mobile
+package com.mathlabtech.app
 
 import io.flutter.embedding.android.FlutterActivity
 

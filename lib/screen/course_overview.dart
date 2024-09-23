@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/development.dart';
+import 'package:mathlab/main.dart';
 import 'package:mathlab/views/courselist.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tex_text/tex_text.dart';
 import 'package:http/http.dart' as http;
@@ -29,10 +33,10 @@ class _CourseOverViewState extends State<CourseOverView> {
   // _CourseOverViewState({required this.CourseData});
 
   loadCourse() async {
-    print(widget.courseData);
+    //print(widget.courseData);
     final Response = await http.get(
         Uri.parse("$baseurl/applicationview/courses/${widget.courseData}/"));
-    print(Response.body);
+    //print(Response.body);
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
       setState(() {
@@ -42,12 +46,25 @@ class _CourseOverViewState extends State<CourseOverView> {
     }
   }
 
+  String razorpaykey = "";
+  loadRazorpaykey() {
+    print("working");
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    db.collection("key").doc("razor_pay").get().then((value) {
+      razorpaykey = value.get("api_key");
+      setState(() {
+        print(razorpaykey);
+      });
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     loadCourse();
-    print(widget.courseData);
+    loadRazorpaykey();
+    //print(widget.courseData);
   }
 
   bool isLoading = true;
@@ -243,16 +260,77 @@ class _CourseOverViewState extends State<CourseOverView> {
                               onTap: () async {
                                 SharedPreferences pref =
                                     await SharedPreferences.getInstance();
-                                String name = pref.getString("NAME").toString();
+                                // String name = pref.getString("NAME").toString();
                                 String email =
                                     pref.getString("EMAIL").toString();
-                                launchUrl(
-                                    Uri.parse(
-                                        "https://wa.me/918281441545?text=I'm%20$name%20interested%20to%20purchase%20${CourseData["field_of_study"]}%20course\n\n\my%20ID%20is%20$email"),
-                                    mode: LaunchMode.externalApplication);
+                                String phone =
+                                    pref.getString("PHONE").toString();
+                                // //print(token);
+                                String token =
+                                    pref.getString("TOKEN").toString();
+
+                                Razorpay razorpay = Razorpay();
+                                razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS,
+                                    _handlePaymentSuccess);
+                                razorpay.on(Razorpay.EVENT_PAYMENT_ERROR,
+                                    _handlePaymentError);
+                                razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET,
+                                    _handleExternalWallet);
+
+                                var url = Uri.parse(baseurl +
+                                    '/applicationview/courses/buycourse/');
+                                //print(CourseData);
+                                var queryParameters = jsonEncode({
+                                  'amount': double.parse(
+                                          CourseData["price"].toString())
+                                      .toInt(),
+                                  'course_unique_id':
+                                      CourseData["course_unique_id"],
+                                  'duration':
+                                      CourseData["Course_duration"] ?? 30,
+                                });
+                                //print(queryParameters);
+                                showDialog(
+                                    context: context,
+                                    builder: (ctx) => Container(
+                                          alignment: Alignment.center,
+                                          child: LoadingAnimationWidget
+                                              .discreteCircle(
+                                                  color: primaryColor,
+                                                  size: 25),
+                                        ));
+
+                                var response = await http
+                                    .post(url, body: queryParameters, headers: {
+                                  'Authorization': 'token $token',
+                                  'Content-Type': 'application/json',
+                                });
+
+                                //print(response.statusCode);
+
+                                if (response.statusCode == 200) {
+                                  var orderData = json.decode(response.body);
+
+                                  var options = {
+                                    'key': razorpaykey,
+                                    'order_id': orderData["order"]
+                                        ["order_payment_id"],
+                                    'name': CourseData["field_of_study"],
+                                    'prefill': {
+                                      'contact': phone,
+                                      'email': email
+                                    }
+                                  };
+                                  print(options);
+                                  razorpay.open(options);
+                                } else {
+                                  Navigator.of(context).pop();
+                                  Fluttertoast.showToast(
+                                      msg: "Order failed, please contact as");
+                                }
                               },
                               child: ButtonContainer(
-                                  (isloading)
+                                  false
                                       ? LoadingAnimationWidget
                                           .staggeredDotsWave(
                                               color: Colors.white, size: 30)
@@ -271,84 +349,72 @@ class _CourseOverViewState extends State<CourseOverView> {
     );
   }
 
-  bool isloading = false;
-  Future<void> createPaymentIntent(int price) async {
-    final url = Uri.parse('https://api.stripe.com/v1/payment_intents');
-    final secretKey =
-        'sk_test_51NE9LVSDCM0Xaplj0DR0MyIpoLzmugLbDQGuuNYtIoSdqMYVWOmiWPgG0PIAUDsbBjJVEQvSbQa6TU6kajeigIwg005qYvK4LX';
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    // Do something when payment succeeds
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    // String name = pref.getString("NAME").toString();
+    //print(response);
+    //print("Payment success");
+    String token = pref.getString("TOKEN").toString();
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Basic ${base64Encode(utf8.encode('$secretKey:'))}',
-        },
-        body: {
-          'amount': (price * 100).toString(),
-          'currency': 'inr',
-          'payment_method': 'pm_card_visa',
-        },
-      );
+    var url = Uri.parse(baseurl + '/applicationview/payment/success/');
 
-      if (response.statusCode == 200) {
-        // Request succeeded, handle the response here.
-        print('Payment Intent Created: ${response.body}');
-        var js = json.decode(response.body);
-        String clientID = js["client_secret"];
-        proceedpayment(clientID);
-      } else {
-        // Handle the error if the server returns a non-200 status code.
-        setState(() {
-          isloading = false;
-        });
-        print(
-            'Failed to create payment intent. Status code: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle any network or other errors that may occur during the request.
-      print('Error creating payment intent: $error');
+    var queryParameters = jsonEncode({
+      'razorpay_payment_id': response.paymentId,
+      'razorpay_order_id': response.orderId,
+      'razorpay_signature': response.signature
+    });
+
+    print(queryParameters);
+
+    var result = await http.post(url, body: queryParameters, headers: {
+      'Authorization': 'token $token',
+      'Content-Type': 'application/json',
+    });
+    print(result.statusCode);
+    print(result.body);
+    if (result.statusCode == 202) {
+      Fluttertoast.showToast(msg: "Course purchased successfully");
+      await fetchUserProfile(pref);
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
     }
+
+    // //print(result.statusCode);
+    // //print(result.body);
   }
 
-  proceedpayment(String clientID) async {
-    try {
-      var gpay = const PaymentSheetGooglePay(
-        merchantCountryCode: "IN",
-        currencyCode: "IND",
-      );
-
-      await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: clientID,
-        style: ThemeMode.light,
-        merchantDisplayName: "Sabarinath",
-        googlePay: gpay,
-      ));
-
-      displayPaymentSheet();
-    } catch (e) {
-      print(e.toString());
-      setState(() {
-        isloading = false;
-      });
-    }
+  void _handlePaymentError(PaymentFailureResponse response) {
+    Fluttertoast.showToast(
+        msg: "Payment failed please try later.Or contact mathlab");
+    Navigator.of(context).pop();
+    // Do something when payment fails
+    //print(response);
   }
 
-  void displayPaymentSheet() async {
-    try {
-      await Stripe.instance.presentPaymentSheet();
-      print("Done");
-      Fluttertoast.showToast(msg: "Payment Sucessfull");
-
-      setState(() {
-        isloading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isloading = false;
-      });
-      print(e);
-      print("Failed");
-    }
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Do something when an external wallet was selected
+    //print(response);
   }
 }
+
+
+
+
+// jsonEncode({
+//       'razorpay_payment_id': response.paymentId,
+//       'razorpay_order_id': response.orderId,
+//       'razorpay_signature': response.signature
+//     })
+
+
+// var headers = {
+//       'Authorization': 'token $token',
+//       "Content-Type": "application/json"
+//     };
+//     //print(baseurl + '/applicationview/payment/success/');
+//     var request = http.MultipartRequest(
+//         'POST', Uri.parse(baseurl + '/applicationview/payment/success/'));
+//     request.fields.addAll();
+//     request.headers.addAll(headers);
+//     http.StreamedResponse Response = await request.send();

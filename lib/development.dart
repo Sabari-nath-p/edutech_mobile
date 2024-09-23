@@ -251,7 +251,7 @@ obj = plustwo()
 result = obj.add_two(5)
 
 # Print the result
-print(result) # Output: 7
+//print(result) # Output: 7
 \end{verbatim}
 
 \end{document}

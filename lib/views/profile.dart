@@ -84,18 +84,19 @@ class _profileViewState extends State<profileView> {
                     Icons.person_2_outlined,
                     istop: true),
               ),
-              InkWell(
-                onTap: () {
-                  // Navigator.of(context).push(
-                  //   MaterialPageRoute(builder: (ctx) => purchaseHistory()));
-                  Fluttertoast.showToast(
-                      msg: "Online Payment method not  eabled");
-                },
-                child: profilelistCard(
-                    "Purchanse History",
-                    "Histroy of course, subject and other ads free purchase",
-                    Icons.monetization_on),
-              ),
+              if (false)
+                InkWell(
+                  onTap: () {
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(builder: (ctx) => purchaseHistory()));
+                    Fluttertoast.showToast(
+                        msg: "Online Payment method not  eabled");
+                  },
+                  child: profilelistCard(
+                      "Purchanse History",
+                      "Histroy of course, subject and other ads free purchase",
+                      Icons.monetization_on),
+                ),
               InkWell(
                 onTap: () {
                   Navigator.of(context).push(
@@ -125,7 +126,7 @@ class _profileViewState extends State<profileView> {
                   },
                   child: profileListCard2("Connect Us")),
               //Expanded(child: Container()),
-              height(180),
+              height(250),
               InkWell(
                 onTap: () async {
                   SharedPreferences pref =

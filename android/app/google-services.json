@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "28058850809",
+    "project_id": "mathlabtech-2876e",
+    "storage_bucket": "mathlabtech-2876e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28058850809:android:52f6d6efd0b6b857471928",
+        "android_client_info": {
+          "package_name": "com.example.edutech_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHKGnEsxwcc6OEYhTwmNZe9JpIoAbbFsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28058850809:android:69425b9ececed015471928",
+        "android_client_info": {
+          "package_name": "com.mathlabtech.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHKGnEsxwcc6OEYhTwmNZe9JpIoAbbFsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

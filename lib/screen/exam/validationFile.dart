@@ -23,6 +23,7 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
   double total = 0;
   List answerStatus = [];
   validateAnswer() {
+    //print("validation Start");
     var examData = widget.examData;
 
     var questionData = examData.questions;
@@ -32,7 +33,7 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
           checkchoice(data);
         } else if (data.model == "multiselect") {
           checkselect(data);
-          print("multi_select");
+          //print("multi_select");
         } else if (data.model == "numericals") {
           checknumerical(data);
         }
@@ -41,12 +42,13 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
       }
     }
 
-    print(total);
-    print(answerStatus);
+    //print(total);
+    //print(answerStatus);
     loadResult();
   }
 
   loadResult() {
+    //print("Loading result");
     Navigator.of(context).pop();
     Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => ExamResult(
@@ -65,8 +67,8 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
       double negetive_mark =
           double.parse(qmodel.questionData["negetive_mark"].toString())
               .toDouble();
-      // print(positive_marks);
-      print(qmodel.answer.toString());
+      // //print(positive_marks);
+      //print(qmodel.answer.toString());
       double answer = double.parse(qmodel.answer.toString()).toDouble();
       double maxAnswer =
           double.parse(qmodel.questionData["ans_max_range"].toString())
@@ -74,8 +76,8 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
       double minAnswer =
           double.parse(qmodel.questionData["ans_min_range"].toString())
               .toDouble();
-      print(answer);
-      print("numerical");
+      //print(answer);
+      //print("numerical");
       if (maxAnswer >= answer && minAnswer <= answer) {
         answerStatus.add(1);
         total = total + positive_marks;
@@ -95,10 +97,10 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
     double negetive_mark =
         double.parse(qmodel.questionData["negetive_mark"].toString())
             .toDouble();
-    // print(positive_marks);
+    // //print(positive_marks);
     String answer = qmodel.answer.toString();
 
-    //print(answer);
+    ////print(answer);
     if (answer == "0" && qmodel.questionData["answer"].toString() == "A") {
       answerStatus.add(1);
       total = total + positive_marks;
@@ -118,7 +120,7 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
       total = total - negetive_mark;
       answerStatus.add(2);
     }
-    // print(total);
+    // //print(total);
   }
 
   checkselect(QuestionListModel qmodel) {
@@ -130,14 +132,14 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
         double.parse(qmodel.questionData["negetive_mark"].toString())
             .toDouble();
 
-    print("answer + ");
-    print(answer);
-    print("multi_select");
+    //print("answer + ");
+    //print(answer);
+    //print("multi_select");
     int i = -1;
     int status = 0;
     for (var data in qmodel.questionData["options"]) {
       i++;
-      print(data["is_answer"]);
+      //print(data["is_answer"]);
       if (!data["is_answer"] && answer.contains(i.toString())) {
         total = total - negetive_mark;
         status = 1;
@@ -167,9 +169,12 @@ class _ExamAnswerValidationState extends State<ExamAnswerValidation> {
   }
 
   loadQuestion() async {
+    //print(widget.examData.id);
     final Response = await http
         .get(Uri.parse("$baseurl/applicationview/exams/${widget.examData.id}"));
-
+    //print("answer fetched");
+    //print(Response.body);
+    //print(Response.statusCode);
     if (Response.statusCode == 200 || Response.statusCode == 201) {
       var data = json.decode(Response.body);
 

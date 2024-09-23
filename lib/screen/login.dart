@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:engagespot_sdk/engagespot_sdk.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -7,7 +9,9 @@ import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/Constants/urls.dart';
+import 'package:mathlab/screen/forgotPasswordScreen.dart';
 import 'package:mathlab/screen/homescreen.dart';
+import 'package:mathlab/screen/otpVerifyScreen.dart';
 import 'package:mathlab/screen/purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -216,6 +220,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText: "Password *"),
                           ),
                         ),
+                      //  if (false)
+                      InkWell(
+                        onTap: () async {
+                          // final response = await http.post(
+                          //     Uri.parse(baseurl + "/users/check-otp/"),
+                          //     body: {"otp": "541851"});
+                          //print(response.body);
+                          //print(response.statusCode);
+
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (ctx) => ForgotPasswordScreen()));
+                        },
+                        child: Container(
+                            margin: EdgeInsets.only(right: 65),
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "Forgot Password",
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500),
+                            )),
+                      )
                     ],
                   ),
                 ),
@@ -297,18 +324,38 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     print(Response.body);
-    // print(Response.statusCode);
+    print(Response.statusCode);
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
 
-      //  print(js["token"]);
-      //  print(js);
-      print(Response.body);
+      //print(Response.body);
       if (js == "The username or password is incorrect") {
         Fluttertoast.showToast(msg: "Invalid credentials");
         setState(() {
           loading = false;
         });
+      } else if (js == "User Not Found") {
+        Fluttertoast.showToast(msg: "Invalid credentials");
+        setState(() {
+          loading = false;
+        });
+      } else if (js == "Multiple Login Detected") {
+        sendlogin(email, password);
+      } else if (js["message"] == "Verify Phone Number For Login") {
+        Fluttertoast.showToast(msg: "Phone number is not verified");
+
+        final Response = await http.post(
+            Uri.parse(baseurl + "/users/send-phone-otp/"),
+            body: {"phone": js["phone_number"]});
+        setState(() {
+          loading = false;
+        });
+        if (Response.statusCode == 200) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (ctx) => otpVerifyScreen(phone: js["phone_number"])));
+        } else {
+          Fluttertoast.showToast(msg: "Otp sending failed");
+        }
       } else {
         SharedPreferences pref = await SharedPreferences.getInstance();
         pref.setString("LOGIN", "IN");
@@ -318,21 +365,34 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           loading = false;
         });
+        token = js["token"];
         final res = await http.get(
-            Uri.parse("$baseurl/applicationview/userlist/$email/"),
+            Uri.parse("$baseurl/applicationview/get-user-profile"),
             headers: ({"Authorization": "token ${js["token"]}"}));
         print(res.body);
         if (res.statusCode == 200) {
-          var jss = json.decode(res.body);
+          var jss = json.decode(res.body)["data"];
           pref.setString("NAME", jss["name"]);
-          updatePurchaseCourse(jss["purchase_list"]["purchased_courses"]);
-          print(res.body);
+          pref.setString("PHONE", jss["phone_number"] ?? "");
+          var list = (jss["purchase_list"] != null &&
+                  jss["purchase_list"]["purchased_courses"] != null)
+              ? jss["purchase_list"]["purchased_courses"]
+              : [];
+          var list2 = (jss["purchase_list"] != null &&
+                  jss["purchase_list"]["purchased_exams"] != null)
+              ? jss["purchase_list"]["purchased_exams"]
+              : [];
+
+          //print(jss["purchase_list"]["purchase_exam"]);
+          Engagespot.LoginUser(userId: email.toString());
+          updatePurchaseCourse(list, list2);
+          //print(res.body);
           Navigator.of(context).pop();
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => HomeScreen()));
         } else {}
       }
-      print("working");
+      //print("working");
     } else {
       setState(() {
         loading = false;
@@ -347,6 +407,8 @@ class _LoginScreenState extends State<LoginScreen> {
       loading = true;
     });
 
+    // Navigator.of(context).push(
+    //     MaterialPageRoute(builder: (ctx) => otpVerifyScreen(phone: phone)));
     final Response =
         await http.post(Uri.parse("$baseurl/users/userRegistration/"), body: {
       "name": name,
@@ -361,25 +423,33 @@ class _LoginScreenState extends State<LoginScreen> {
     if (Response.statusCode == 200 || Response.statusCode == 201) {
       var result = json.decode(Response.body);
 
-      Fluttertoast.showToast(msg: "Welcome to MathLab Research");
+      Fluttertoast.showToast(msg: "Please verify otp to continue");
       SharedPreferences pref = await SharedPreferences.getInstance();
-      pref.setString("LOGIN", "IN");
+      // pref.setString("LOGIN", "IN");
       pref.setString("EMAIL", email);
       pref.setString("PASSWORD", password);
       pref.setString("NAME", name);
       pref.setString("PHONE", phone);
-      pref.setString("TOKEN", result["token"]);
-      print(result);
+      Engagespot.LoginUser(userId: email.toString());
+      //  pref.setString("TOKEN", result["token"]);
+      //print(result);
       setState(() {
         loading = false;
       });
+
+      //599258
+      //599258
       Navigator.of(context).pop();
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => HomeScreen()));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => otpVerifyScreen(
+                phone: phone,
+              )));
     } else {
       var result = json.decode(Response.body);
       if (result["username"] != null)
         Fluttertoast.showToast(msg: "email id already existed");
+      if (result["phone_number"] != null)
+        Fluttertoast.showToast(msg: "phone number already existed");
       if (result["password"] != null)
         Fluttertoast.showToast(
             msg:

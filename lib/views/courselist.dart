@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mathlab/Constants/colors.dart';
@@ -30,7 +31,7 @@ class _CourseListViewState extends State<CourseListView> {
 
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
-      print(js);
+      //print(js);
       setState(() {
         for (var data in js) {
           course.add(data);
@@ -43,110 +44,93 @@ class _CourseListViewState extends State<CourseListView> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     if (course.isEmpty) loadcourse();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-            backgroundColor: primaryColor, // Color(0xff26202C),
-            body: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 100,
-                    decoration: BoxDecoration(
+    return Container(
+        color: primaryColor, // Color(0xff26202C),
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 100,
+                decoration: BoxDecoration(
 
-                        // border: Border(
-                        //   bottom: BorderSide(color: Colors.grey.withOpacity(.7))),
-                        ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            width(60),
-                            Expanded(
-                                child: Container(
-                              alignment: Alignment.center,
-                              child: tx700("Courses",
-                                  color: Colors.white, size: 23),
-                            )),
-                            width(60)
-                          ],
-                        ),
-                        // height(10),
-                        // tx700("", color: Colors.black, size: 25),
-                      ],
+                    // border: Border(
+                    //   bottom: BorderSide(color: Colors.grey.withOpacity(.7))),
                     ),
-                  ),
-                  Expanded(
-                      child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(.98),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(50),
-                            topRight: Radius.circular(50))),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          height(20),
-                          for (var data in course)
-                            if (data["is_active"] && data["subjects_count"] > 0)
-                              InkWell(
-                                onTap: () {
-                                  if (!data["only_paid"] ||
-                                      (data["only_paid"] &&
-                                          checkCourseActive(
-                                              data["course_unique_id"])))
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SubjectListView(
-                                                  courseData: data,
-                                                )));
-                                  else {
-                                    Fluttertoast.showToast(
-                                        msg:
-                                            "Only paid member can access this course ");
-                                    QuickAlert.show(
-                                        context: context,
-                                        type: QuickAlertType.confirm,
-                                        text:
-                                            'Do you want to purchase this course',
-                                        confirmBtnText: 'Yes',
-                                        cancelBtnText: 'No',
-                                        // barrierColor: primaryColor,
-                                        onCancelBtnTap: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        confirmBtnColor: Colors.green,
-                                        onConfirmBtnTap: () {
-                                          print(data["course_unique_id"]);
-                                          Navigator.of(context).pop();
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      CourseOverView(
-                                                          courseData: data[
-                                                                  "course_unique_id"]
-                                                              .toString())));
-                                        });
-                                  }
-                                },
-                                child: subjectCard(data),
-                              )
-                        ],
-                      ),
-                    ),
-                  ))
-                ],
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: tx700("Courses", color: Colors.white, size: 23),
+                ),
               ),
-            )));
+              Expanded(
+                  child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(.98),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        topRight: Radius.circular(50))),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      height(20),
+                      for (var data in course)
+                        if (data["is_active"] && data["subjects_count"] > 0)
+                          InkWell(
+                            onTap: () {
+                              print(data["only_paid"]);
+                              if (!data["only_paid"] ||
+                                  (data["only_paid"] &&
+                                      checkCourseActive(
+                                          data["course_unique_id"])))
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => SubjectListView(
+                                          courseData: data,
+                                        )));
+                              else {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "Only paid member can access this course ");
+                                QuickAlert.show(
+                                    context: context,
+                                    type: QuickAlertType.confirm,
+                                    text: 'Do you want to purchase this course',
+                                    confirmBtnText: 'Yes',
+                                    cancelBtnText: 'No',
+                                    // barrierColor: primaryColor,
+                                    onCancelBtnTap: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    confirmBtnColor: Colors.green,
+                                    onConfirmBtnTap: () {
+                                      //print(data["course_unique_id"]);
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CourseOverView(
+                                                      courseData: data[
+                                                              "course_unique_id"]
+                                                          .toString())));
+                                    });
+                              }
+                            },
+                            child: subjectCard(data),
+                          )
+                    ],
+                  ),
+                ),
+              ))
+            ],
+          ),
+        ));
   }
 
   subjectCard(var data) {

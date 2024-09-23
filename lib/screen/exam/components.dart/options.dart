@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
+import 'package:mathlab/main.dart';
+import 'package:mathlab/screen/exam/components.dart/question.dart';
 import 'package:tex_text/tex_text.dart';
 import '../models/ExamData.dart';
 import '../models/questionMode.dart';
@@ -17,8 +19,24 @@ class _ExamOptionsState extends State<ExamOptions> {
   int selectedOption = -1;
   List multipleOption = [];
   TextEditingController numericController = TextEditingController();
+  final GlobalKey key = GlobalKey();
+  late RenderBox renderBox;
+
+  void calculateClippedPixels() {
+    renderBox = key.currentContext!.findRenderObject() as RenderBox;
+
+    final double totalWidth = renderBox.size.width;
+    final double visibleWidth = renderBox.constraints.maxWidth;
+
+    final double clippedWidth = totalWidth - visibleWidth;
+
+    //print("Total Width: $totalWidth");
+    //print("Visible Width: $visibleWidth");
+    //print("Clipped Width: $clippedWidth pixels");
+  }
 
   loadOption() {
+    multipleOption = [];
     qnmodel = widget.examData.getCurrentQuestion();
     questionType = qnmodel.model!;
     if (questionType == "multiplechoice") {
@@ -44,7 +62,7 @@ class _ExamOptionsState extends State<ExamOptions> {
 
   loadNotifier() {
     widget.examData.notifier.addListener(() {
-      print("Working");
+      //print("Working");
       setState(() {
         selectedOption = -1;
         loadOption();
@@ -58,6 +76,7 @@ class _ExamOptionsState extends State<ExamOptions> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     qnmodel = widget.examData.getCurrentQuestion();
     questionType = qnmodel.model!;
     loadOption();
@@ -77,8 +96,8 @@ class _ExamOptionsState extends State<ExamOptions> {
                 color: Colors.grey.withOpacity(.2),
                 offset: Offset(.2, 10))
           ]),
-      padding: EdgeInsets.all(20),
-      margin: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.all(10),
       child: Column(
         children: [
           if (questionType == "multiplechoice" || questionType == "multiselect")
@@ -102,11 +121,24 @@ class _ExamOptionsState extends State<ExamOptions> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Container(
+                        //   width: 20,
+                        //   height: 20,
+                        //   margin: EdgeInsets.only(right: 5),
+                        //   alignment: Alignment.center,
+                        //   decoration: BoxDecoration(
+                        //       color: Color(0xffF3F3F3),
+                        //       borderRadius: BorderRadius.circular(2)),
+                        //   child: tx500(
+                        //       String.fromCharCode('A'.codeUnitAt(0) + i),
+                        //       size: 14),
+                        // ),
                         Container(
                           height: 25,
                           width: 25,
+                          alignment: Alignment.center,
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                   color: (selectedOption == i)
                                       ? Colors.green
@@ -125,9 +157,11 @@ class _ExamOptionsState extends State<ExamOptions> {
                                   ),
                                   backgroundColor: Colors.green,
                                 )
-                              : null,
+                              : tx500(
+                                  String.fromCharCode('A'.codeUnitAt(0) + i),
+                                  size: 14),
                         ),
-                        width(20),
+                        width(10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,6 +182,24 @@ class _ExamOptionsState extends State<ExamOptions> {
                                       fontFamily: "Mullish",
                                       color: Colors.black87,
                                     )),
+                              // if (qnmodel.questionData["option${i + 1}_text"] !=
+                              //     null)
+                              //   if (checkOverflow(
+                              //       context,
+                              //       qnmodel
+                              //           .questionData["option${i + 1}_text"]))
+                              //     SingleChildScrollView(
+                              //       scrollDirection: Axis.horizontal,
+                              //       child: TexText(
+                              //           qnmodel.questionData[
+                              //               "option${i + 1}_text"],
+                              //           style: TextStyle(
+                              //             fontSize: 15,
+                              //             fontWeight: FontWeight.w600,
+                              //             fontFamily: "Mullish",
+                              //             color: Colors.black87,
+                              //           )),
+                              //     ),
                             ],
                           ),
                         )
@@ -157,7 +209,7 @@ class _ExamOptionsState extends State<ExamOptions> {
                 )
               else if (questionType == "multiselect")
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
+                  margin: EdgeInsets.symmetric(vertical: 15),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -177,6 +229,7 @@ class _ExamOptionsState extends State<ExamOptions> {
                         child: Container(
                           height: 25,
                           width: 25,
+                          alignment: Alignment.center,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(0),
                               color: (multipleOption.contains(i))
@@ -194,7 +247,9 @@ class _ExamOptionsState extends State<ExamOptions> {
                                     size: 20,
                                   ),
                                 )
-                              : null,
+                              : tx500(
+                                  String.fromCharCode('A'.codeUnitAt(0) + i),
+                                  size: 14),
                         ),
                       ),
                       width(20),
@@ -213,9 +268,28 @@ class _ExamOptionsState extends State<ExamOptions> {
                           if (qnmodel.questionData["options"][i]
                                   ["options_text"] !=
                               null)
-                            Container(
-                                child: TexText(qnmodel.questionData["options"]
-                                    [i]["options_text"])),
+                            // if (checkOverflow(
+                            //     context,
+                            //     (qnmodel.questionData["options"][i]
+                            //         ["options_text"])))
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                  width: 390,
+                                  child: TexText(qnmodel.questionData["options"]
+                                      [i]["options_text"])),
+                            ),
+                          // if (qnmodel.questionData["options"][i]
+                          //         ["options_text"] !=
+                          //     null)
+                          //   if (!checkOverflow(
+                          //       context,
+                          //       (qnmodel.questionData["options"][i]
+                          //           ["options_text"])))
+                          //     SingleChildScrollView(
+                          //         scrollDirection: Axis.horizontal,
+                          //         child: TexText(qnmodel.questionData["options"]
+                          //             [i]["options_text"])),
                         ],
                       ))
                     ],
@@ -250,9 +324,9 @@ class _ExamOptionsState extends State<ExamOptions> {
                           keyboardType: TextInputType.numberWithOptions(
                               signed: true, decimal: true),
                           onChanged: (newanswer) {
-                            //print(newanswer);
+                            ////print(newanswer);
                             widget.examData.markAnswer(newanswer);
-                            print(widget.examData.getCurrentQuestion().answer);
+                            //print(widget.examData.getCurrentQuestion().answer);
                           },
                           decoration: InputDecoration(
                               border: OutlineInputBorder(

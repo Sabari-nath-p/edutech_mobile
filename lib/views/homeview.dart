@@ -1,12 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:engagespot_sdk/engagespot_sdk.dart';
+import 'package:engagespot_sdk/models/Notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:mathlab/Constants/colors.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/Constants/urls.dart';
-import 'package:mathlab/notification.dart';
+import 'package:mathlab/components/notificationicon.dart';
+import 'package:mathlab/screen/notification.dart';
 import 'package:mathlab/screen/course_overview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -37,26 +42,50 @@ class _HomeViewState extends State<HomeView> {
     loaddata();
     loadpopularCouse();
     if (slidershowimages.isEmpty) loadSlideShow();
+    loadNotification();
   }
 
   List popCourse = [];
   List slidershowimages = [];
+
+  NotificationSet? notifications;
+  loadNotification() async {
+    //print("Notifications");
+    notifications = await Engagespot.getNotifications();
+    setState(() {});
+    Engagespot.ListernMessage(onMessage: (message) {
+      notifications!.notificationMessage!.insert(0, message);
+      notifications!.unReadCount = notifications!.unReadCount! + 1;
+      setState(() {});
+    }, onReadAll: () {
+      notifications!.unReadCount = 0;
+      setState(() {});
+    });
+
+    if (Platform.isAndroid) {
+      FirebaseMessaging.instance.getToken().then((value) {
+        String? token = value;
+
+        Engagespot.RegisterFCM(token!);
+      });
+    }
+  }
 
   loadpopularCouse() async {
     final Response = await http
         .get(Uri.parse("$baseurl/applicationview/popularcourseview/"));
     if (Response.statusCode == 200) {
       setState(() {
-        // print(Response.body);
+        //print(Response.body);
         var js = json.decode(Response.body);
+
         for (var data in js) {
           //   popCourse = data["course"];
-          //  print(data);
+          //  //print(data);
           popCourse = data["course"];
-          break;
         }
         //popCourse = js[0]["course"];
-        //  print(popCourse);
+        //  //print(popCourse);
       });
     }
   }
@@ -69,7 +98,7 @@ class _HomeViewState extends State<HomeView> {
       setState(() {
         var js = json.decode(response.body);
         slidershowimages = js;
-        // print(js);
+        // //print(js);
       });
     }
   }
@@ -98,13 +127,15 @@ class _HomeViewState extends State<HomeView> {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => NotificationScreen()));
                 },
-                child: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Colors.transparent,
-                    child: Image.network(
-                      "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-coloricon-1/21/61_1-512.png",
-                      color: primaryColor,
-                    )),
+                child: myAppBarIcon(
+                    notifications != null ? notifications!.unReadCount! : 0),
+                // child: CircleAvatar(
+                //     radius: 18,
+                //     backgroundColor: Colors.transparent,
+                //     child: Image.network(
+                //       "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-coloricon-1/21/61_1-512.png",
+                //       color: primaryColor,
+                //     )),
               ),
               width(20),
             ],

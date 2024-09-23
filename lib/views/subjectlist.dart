@@ -9,7 +9,6 @@ import 'package:mathlab/Constants/urls.dart';
 import 'package:mathlab/screen/chapterlist.dart';
 import 'package:http/http.dart' as http;
 
-
 import '../screen/videoplayer.dart';
 
 class SubjectListView extends StatefulWidget {
@@ -34,7 +33,7 @@ class _SubjectListViewState extends State<SubjectListView> {
 
     if (Response.statusCode == 200) {
       var js = json.decode(Response.body);
-      print(js);
+      //print(js);
       setState(() {
         for (var data in js) {
           subjects.add(data);
@@ -91,6 +90,7 @@ class _SubjectListViewState extends State<SubjectListView> {
                             width(10),
                             Expanded(
                                 child: Container(
+                              height: 70,
                               alignment: Alignment.center,
                               child: tx700(courseData["field_of_study"],
                                   color: Colors.white, size: 22),

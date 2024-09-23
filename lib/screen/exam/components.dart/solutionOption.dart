@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
+import 'package:mathlab/screen/exam/components.dart/question.dart';
 import 'package:tex_text/tex_text.dart';
 import '../models/ExamData.dart';
 import '../models/questionMode.dart';
@@ -72,8 +73,8 @@ class _solutionOptionState extends State<solutionOption> {
                 color: Colors.grey.withOpacity(.2),
                 offset: Offset(.2, 10))
           ]),
-      padding: EdgeInsets.all(20),
-      margin: EdgeInsets.all(20),
+      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.all(10),
       child: Column(
         children: [
           if (questionType == "multiplechoice" || questionType == "multiselect")
@@ -94,6 +95,10 @@ class _solutionOptionState extends State<solutionOption> {
                                   color: checkchoice(qnmodel, i), width: 1.3)),
                           child: CircleAvatar(
                             backgroundColor: checkchoice(qnmodel, i),
+                            child: tx500(
+                                String.fromCharCode('A'.codeUnitAt(0) + i),
+                                color: Colors.white,
+                                size: 14),
                           )),
                       width(20),
                       Expanded(
@@ -123,6 +128,7 @@ class _solutionOptionState extends State<solutionOption> {
               else if (questionType == "multiselect")
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
+                  alignment: Alignment.center,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -130,6 +136,7 @@ class _solutionOptionState extends State<solutionOption> {
                       Container(
                         height: 25,
                         width: 25,
+                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(0),
                             color: checkselect(qnmodel, i),
@@ -143,7 +150,8 @@ class _solutionOptionState extends State<solutionOption> {
                                   color: checkselect(qnmodel, i),
                                 ),
                               )
-                            : null,
+                            : tx500(String.fromCharCode('A'.codeUnitAt(0) + i),
+                                color: Colors.white, size: 14),
                       ),
                       width(20),
                       Expanded(
@@ -161,9 +169,24 @@ class _solutionOptionState extends State<solutionOption> {
                           if (qnmodel.questionData["options"][i]
                                   ["options_text"] !=
                               null)
-                            Container(
-                                child: TexText(qnmodel.questionData["options"]
-                                    [i]["options_text"])),
+                            if (checkOverflow(
+                                context,
+                                (qnmodel.questionData["options"][i]
+                                    ["options_text"])))
+                              Container(
+                                  child: TexText(qnmodel.questionData["options"]
+                                      [i]["options_text"])),
+                          if (qnmodel.questionData["options"][i]
+                                  ["options_text"] !=
+                              null)
+                            if (!checkOverflow(
+                                context,
+                                (qnmodel.questionData["options"][i]
+                                    ["options_text"])))
+                              SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: TexText(qnmodel.questionData["options"]
+                                      [i]["options_text"])),
                         ],
                       ))
                     ],
@@ -215,16 +238,16 @@ class _solutionOptionState extends State<solutionOption> {
   }
 
   Color checkchoice(QuestionListModel qmodel, int question) {
-    // print(positive_marks);
+    // //print(positive_marks);
     String answer = qmodel.answer.toString();
     List alpa = ["A", "B", "C", "D"];
-    // print(alpa.indexOf(qmodel.questionData["answer"].toString()));
+    // //print(alpa.indexOf(qmodel.questionData["answer"].toString()));
 
     int correctAnswer = alpa.indexOf(qmodel.questionData["answer"].toString());
-    print("answer");
-    print(correctAnswer);
-    //print(answer == correctAnswer);
-    // print(selectedOption == question);
+    //print("answer");
+    //print(correctAnswer);
+    ////print(answer == correctAnswer);
+    // //print(selectedOption == question);
 
     if (answer == correctAnswer.toString() && selectedOption == question) {
       return Colors.green;
@@ -241,7 +264,7 @@ class _solutionOptionState extends State<solutionOption> {
     else {
       return Colors.black54;
     }
-    // print(total)q
+    // //print(total)q
   }
 
   Color checkselect(QuestionListModel qnmodel, int question) {

@@ -24,28 +24,34 @@ class ExamData {
   }
 
   fetchAnswer(var answer) {
-    print("fetching answer");
-    print(answer);
+    //print("fetching answer");
+    //print(answer);
     int j = -1;
     for (int i = 1; answer[i.toString()] != null; i++) {
       j++;
-     // print(i);
+      // //print(i);
       questions[j].answer = answer[i.toString()];
       if (answer[i.toString()] == "" || answer[i.toString()] == null) {
         questions[j].status = -1;
       } else
         questions[j].status = 1;
-      print(questions[j].status);
-      print(questions[j].answer);
+      //print(questions[j].status);
+      //print(questions[j].answer);
     }
   }
 
   fetchQuestion(var questionSet, String model) {
     for (var qns in questionSet) {
       QuestionListModel question = QuestionListModel(
-          questionData: qns, model: model, answer: "", status: -1);
+          questionData: qns,
+          QuestionNumber: qns["question_no"],
+          model: model,
+          answer: "",
+          status: -1);
       questions.add(question);
+      //   //print(question.QuestionNumber);
     }
+    questions.sort((a, b) => a.QuestionNumber.compareTo(b.QuestionNumber));
   }
 
   jumpto(int n) {
@@ -78,13 +84,13 @@ class ExamData {
   IncrementQuestion() {
     if (currentQuesstion < questions.length - 1) currentQuesstion++;
     notifier.value++;
-    print("question incremented");
+    //print("question incremented");
   }
 
   DecrementQuestion() {
     if (currentQuesstion > 0) currentQuesstion--;
     notifier.value++;
-    print("decremented");
+    //print("decremented");
   }
 
   QuestionListModel getCurrentQuestion() {

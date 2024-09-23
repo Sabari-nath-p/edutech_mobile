@@ -48,7 +48,7 @@ class _ExamStartState extends State<ExamStart> {
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
-      print(response.body);
+      //print(response.body);
       setState(() {
         examTitle = data["exam_name"];
         examduration = data["duration_of_exam"];
@@ -141,7 +141,7 @@ class _ExamStartState extends State<ExamStart> {
                     children: [
                       Container(
                         child: Text(
-                          "${instructionSet.replaceAll("\n", "\n\n-> ")}",
+                          "${instructionSet}",
                           textAlign: TextAlign.justify,
                           style: TextStyle(
                               fontSize: 14,

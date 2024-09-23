@@ -42,7 +42,7 @@ class _ExamResultState extends State<ExamResult> {
     setState(() {
       if (widget.total > 0) status = true;
       totalMark = widget.examData.totalmark.toDouble();
-      print(widget.seconds);
+      //print(widget.seconds);
       Duration duration = Duration(seconds: widget.seconds);
       hours = duration.inHours.toString().padLeft(0, '2');
       minute = duration.inMinutes.remainder(60).toString().padLeft(2, '0');

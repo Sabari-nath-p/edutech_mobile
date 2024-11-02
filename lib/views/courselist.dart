@@ -157,10 +157,10 @@ class _CourseListViewState extends State<CourseListView> {
                     size: 12, color: Colors.black),
                 Expanded(
                     child: SizedBox(
-                  width: 230,
-                  child: tx500(data["Course_description"],
-                      size: 14, color: Colors.black),
-                )),
+                        // width: 230,
+                        // child: tx500(data["Course_description"],
+                        //     size: 14, color: Colors.black),
+                        )),
                 tx400("Powered by Mathlab", size: 12),
               ],
             ),

@@ -265,7 +265,7 @@ class ResultViewScreen extends StatelessWidget {
                                               : (data.checkAnswerStatus() == 1)
                                                   ? Color(0xff009E52)
                                                   : Colors.red),
-                                      child: tx600("${i + 1}",
+                                      child: tx600("${data.questionNo}",
                                           color: Colors.white),
                                     ),
                                   )

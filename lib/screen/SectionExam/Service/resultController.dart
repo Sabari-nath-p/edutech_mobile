@@ -16,14 +16,14 @@ class ResultController extends GetxController {
   fetchExam(var userAnwser, String slug) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     token = pref.getString("TOKEN") ?? "";
-
+    print(userAnwser["exam_id"]);
     final Response = await get(
         Uri.parse(baseurl + "/exam/addexam/${userAnwser["exam_id"]}"),
         headers: {
           "Authorization": "token $token",
           "Content-Type": "application/json",
         });
-
+    print(baseurl + "/exam/addexam/${userAnwser["exam_id"]}");
     print(Response.body);
     print(userAnwser);
 
@@ -85,6 +85,7 @@ class ResultController extends GetxController {
 
           temp.add(tt);
         }
+        temp.sort((a, b) => a.questionNo.compareTo(b.questionNo));
         if (temp.isNotEmpty) questionList.add(temp);
       }
       update();

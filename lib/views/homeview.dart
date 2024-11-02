@@ -155,7 +155,7 @@ class _HomeViewState extends State<HomeView> {
           Container(
             alignment: Alignment.topLeft,
             margin: EdgeInsets.symmetric(horizontal: 30),
-            child: tx500("Find Your Favorite Online Course",
+            child: tx500("Welcome to Mathlab Institute",
                 size: 20, color: Colors.black),
           ),
           height(10),

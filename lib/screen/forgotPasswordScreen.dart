@@ -46,18 +46,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   verifyOtp() async {
+    print(validationID);
     setState(() {
       loading = true;
     });
-    final Response =
-        await post(Uri.parse(baseurl + "/users/check-otp/"), body: {
-      "email": emailController.text.trim(),
-      "otp": otpController.text.trim(),
-      "validation_id": validationID
-    });
+    final Response = await post(
+        Uri.parse(baseurl +
+            "/users/check-otp/?otp=${otpController.text}&validation_id=${validationID}"),
+        body: {
+          "email": emailController.text.trim(),
+          "otp": otpController.text.trim(),
+          "validation_id": validationID
+        });
     setState(() {
       loading = false;
     });
+    print(Response.body);
+    print(Response.statusCode);
     if (Response.statusCode == 200) {
       // validationID = jsonDecode(Response.body)["validation_id"];
 
@@ -72,14 +77,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() {
       loading = true;
     });
-    final Response =
-        await post(Uri.parse(baseurl + "/users/reset-password/"), body: {
-      "email": emailController.text.trim(),
-      "otp": otpController.text.trim(),
-      "password": passworController.text,
-      "confirm_password": confirmPassword.text,
-      "validation_id": validationID
-    });
+    final Response = await post(
+        Uri.parse(baseurl +
+            "/users/reset-password/?otp=${otpController.text}&validation_id=${validationID}"),
+        body: {
+          "email": emailController.text.trim(),
+          "otp": otpController.text.trim(),
+          "password": passworController.text,
+          "confirm_password": confirmPassword.text,
+          "validation_id": validationID
+        });
     setState(() {
       loading = false;
     });

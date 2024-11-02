@@ -67,6 +67,7 @@ class QuestionPalletView extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
+                        Get.back();
                         QuickAlert.show(
                             context: context,
                             type: QuickAlertType.loading,

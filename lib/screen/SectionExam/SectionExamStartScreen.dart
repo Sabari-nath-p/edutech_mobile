@@ -6,6 +6,8 @@ import 'package:mathlab/Constants/sizer.dart';
 import 'package:mathlab/Constants/textstyle.dart';
 import 'package:mathlab/screen/SectionExam/SectionExamViewScreen.dart';
 import 'package:mathlab/screen/SectionExam/Service/controller.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class sectionExamStartScreen extends StatelessWidget {
   String exammUniqueId;
@@ -127,8 +129,23 @@ class sectionExamStartScreen extends StatelessWidget {
                             EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                         child: InkWell(
                           onTap: () {
-                            Get.to(() => SectionExamViewScreen(),
-                                transition: Transition.rightToLeft);
+                            QuickAlert.show(
+                                context: context,
+                                title: "Are you sure want to start",
+                                text:
+                                    "Once you start the exam, you can’t leave. Be prepared before you begin",
+                                type: QuickAlertType.confirm,
+                                cancelBtnText: "Return",
+                                onCancelBtnTap: () {
+                                  Get.back();
+                                },
+                                onConfirmBtnTap: () {
+                                  Get.back();
+                                  Get.to(() => SectionExamViewScreen(),
+                                      transition: Transition.rightToLeft);
+                                },
+                                confirmBtnText: "Continue");
+
                             // Navigator.of(context).push(MaterialPageRoute(
                             //     builder: (context) => examMain(
                             //           examData: examData,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart' as d;
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
@@ -87,6 +88,8 @@ class SectionExamController extends GetxController {
               numericals: dt));
         }
 
+        temp.sort((a, b) => a.questionNo.compareTo(b.questionNo));
+
         questionList.add(temp);
       }
       if (questionList.length > 0 && questionList[0].length > 0) {
@@ -117,6 +120,11 @@ class SectionExamController extends GetxController {
           confirmBtnText: "Sure",
           onConfirmBtnTap: () {
             Navigator.of(context).pop();
+            QuickAlert.show(
+                context: context,
+                type: QuickAlertType.loading,
+                title: "Please wait",
+                text: "your answer validating");
             submitExam();
           },
           title: "Are you sure want to submit exam");
@@ -223,12 +231,14 @@ class SectionExamController extends GetxController {
     });
     print(requestBody);
 
+    //requestBody = json.encode();
+
     try {
       d.Response response = await dio.post(
         baseurl + "/applicationview/examresponseadd/",
         options: d.Options(
           headers: {
-            "Authorization": "token $token",
+            "Authorization": "Token $token",
             "Content-Type": "application/json",
             "Vary": "Accept",
             // "Content-Length": "1000",
@@ -236,18 +246,13 @@ class SectionExamController extends GetxController {
         ),
         data: requestBody,
       );
-      print(response.data);
-      print(response.statusCode);
       if (response.statusCode == 201) {
         Get.back();
         Get.back();
         Get.back();
-
         Box bx = await Hive.openBox("EXAM_RESULT");
-
         bx.put(response.data["data"]["exam_id"].toString(),
             response.data["data"]["response"]);
-
         Get.to(
             () => ResultViewScreen(
                   UserResponse: response.data["data"]["response"],
@@ -256,19 +261,17 @@ class SectionExamController extends GetxController {
                 ),
             transition: Transition.rightToLeft);
       }
-    } on d.DioError catch (e) {
+    } on d.DioException catch (e) {
       if (e.response != null) {
-        print("Dio error!");
-        print("Status code: ${e.response!.statusCode}");
-        //  print("Data: ${e.response!.data}");
-        print("Headers: ${e.response!.headers}");
+        Fluttertoast.showToast(msg: "Server error please try after sometimes");
+        Get.back();
       } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print("Error sending request!");
-        print(e.message);
+        Fluttertoast.showToast(msg: "Server error please try after sometimes");
+        Get.back();
       }
     } catch (e) {
-      print("Unexpected error: $e");
+      Fluttertoast.showToast(msg: "Server error please try after sometimes");
+      Get.back();
     }
   }
 }

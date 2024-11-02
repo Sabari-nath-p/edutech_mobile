@@ -46,14 +46,14 @@ class _CourseOverViewState extends State<CourseOverView> {
     }
   }
 
-  String razorpaykey = "";
+  //String razorpaykey = "";
   loadRazorpaykey() {
     print("working");
     FirebaseFirestore db = FirebaseFirestore.instance;
     db.collection("key").doc("razor_pay").get().then((value) {
-      razorpaykey = value.get("api_key");
+      //  razorpaykey = value.get("api_key");
       setState(() {
-        print(razorpaykey);
+        //  print(razorpaykey);
       });
     });
   }
@@ -63,7 +63,7 @@ class _CourseOverViewState extends State<CourseOverView> {
     // TODO: implement initState
     super.initState();
     loadCourse();
-    loadRazorpaykey();
+    //loadRazorpaykey();
     //print(widget.courseData);
   }
 
@@ -268,7 +268,7 @@ class _CourseOverViewState extends State<CourseOverView> {
                                 // //print(token);
                                 String token =
                                     pref.getString("TOKEN").toString();
-
+                                print(token);
                                 Razorpay razorpay = Razorpay();
                                 razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS,
                                     _handlePaymentSuccess);
@@ -312,10 +312,11 @@ class _CourseOverViewState extends State<CourseOverView> {
                                   var orderData = json.decode(response.body);
 
                                   var options = {
-                                    'key': razorpaykey,
+                                    'key': "rzp_live_q33taXq56Sx6Qj",
                                     'order_id': orderData["order"]
                                         ["order_payment_id"],
-                                    'name': CourseData["field_of_study"],
+                                    // 'amount': orderData["payment"]["amount"],
+                                    // 'name': CourseData["field_of_study"],
                                     'prefill': {
                                       'contact': phone,
                                       'email': email
@@ -389,7 +390,9 @@ class _CourseOverViewState extends State<CourseOverView> {
         msg: "Payment failed please try later.Or contact mathlab");
     Navigator.of(context).pop();
     // Do something when payment fails
-    //print(response);
+    print(response.message);
+    print(response.error);
+    //print(respons)
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
